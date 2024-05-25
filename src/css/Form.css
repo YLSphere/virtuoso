@@ -1,0 +1,39 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+}
+
+.submit-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    color: white;
+    background-color: Transparent;
+    border: none;
+    cursor:pointer;
+}
+
+.input{
+    width: 70vh;
+    height: 4vh;
+    border-radius: 5px;
+    /* border: 2px solid #b8bd7bee; */
+    border: 2px solid white;
+    text-shadow: none !important;
+}
+
+.submit-button:hover {
+    filter: drop-shadow(0 0 2em #cccacaee);
+    color: #cccacaee;
+}
+.submit-button:focus {
+    outline: none; 
+}
+.submit-button.react:hover {
+    filter: drop-shadow(0 0 2em #cccacaee);
+}

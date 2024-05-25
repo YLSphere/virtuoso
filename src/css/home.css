@@ -1,0 +1,58 @@
+/* .welcome{
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} */
+
+.box {
+    width: 70vh;
+    height: 40px;
+    margin: 10px 0;
+    border-color:#ffffffbb;
+    border-style:solid;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .box-container {
+    height:97vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 97vw;
+    justify-content: center;
+  }
+
+  .answer {
+    color:white;
+  }
+
+  .spinner{
+    height:97vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 97vw;
+    justify-content: center;
+  }
+
+  audio {
+    margin-top: 10px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+    height: 10px;
+  }
+  
+  .progress {
+    height: 100%;
+    background-color: #1db954;
+    border-radius: 5px;
+  }
