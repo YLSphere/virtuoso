@@ -3,13 +3,18 @@ import axios from 'axios';
 
 import "../css/Home.css"
 import "../css/App.css"
+import '../css/particles.css';
 
 import Form from '../components/Form'
 import Spinner from '../components/Spinner'
 import Modal from '../components/Modal';
+import Navbar from '../components/Navbar';
+
 
 import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
+import { PiFastForwardFill } from "react-icons/pi";
+import { RxShuffle } from "react-icons/rx";
 
 
 interface Track {
@@ -30,10 +35,11 @@ interface DisplayData {
     wholeName: string;
 }
 
-interface HomeProps {
-    tokens: { [userId: string]: string };
+interface Genre {
+  name: string;
 }
-let intervals = [0.2, 0.8, 2, 4, 8, 15, 30];
+
+let intervals = [0.2, 1, 2, 4, 8, 15, 30];
 let MAX_TRIES = 6;
 let TRACK_LENGTH = 1000;
 function Home() {
@@ -45,6 +51,7 @@ function Home() {
     const [gameActive, setGameActive] = useState<boolean>(false);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [firstPlay, setfirstPlay] = useState<boolean>(true);
     
     
     const [topTracks, setTopTracks] = useState<Track[]>([]);
@@ -61,22 +68,24 @@ function Home() {
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    useEffect(() => {
-        const hash = window.location.hash;
-        let token = window.localStorage.getItem('token');
     
-        if (!token && hash) {
-          token = hash.substring(1).split('&').find(elem => elem.startsWith('access_token'))?.split('=')[1] ?? null;
-    
-          if (token) {
-            window.localStorage.setItem('token', token);
-            setToken(token);
-          }
-          window.location.hash = '';
-        } else if (token) {
+
+  useEffect(() => {
+      const hash = window.location.hash;
+      let token = window.localStorage.getItem('token');
+
+      if (!token && hash) {
+        token = hash.substring(1).split('&').find(elem => elem.startsWith('access_token'))?.split('=')[1] ?? null;
+
+        if (token) {
+          window.localStorage.setItem('token', token);
           setToken(token);
         }
-    }, []);
+        window.location.hash = '';
+      } else if (token) {
+        setToken(token);
+      }
+  }, []);
 
 
 
@@ -118,7 +127,6 @@ function Home() {
         fetchTopTracks();
       }, [token]);
 
-
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
         if (topTracks.length > 0) {
@@ -158,12 +166,14 @@ function Home() {
 
 
     const selectRandomTrack = () => {
+      
         setTries(0)
         setSongGuesses([])
         if (topTracks.length > 0) {
             const randomIndex = Math.floor(Math.random() * topTracks.length);
             const selectedTrack = topTracks[randomIndex];
             setRandomTrack(selectedTrack);
+            // console.log(selectedTrack);
             setAnswerIndex(randomIndex);
             setCorrect(false)
             setGameActive(true)
@@ -195,6 +205,7 @@ function Home() {
     const handleLoadedMetadata = () => {
         if (audioRef.current) {
             setDuration(audioRef.current.duration);
+            
         }
     };
 
@@ -217,20 +228,37 @@ function Home() {
     // PLAY PAUSE BUTTON
     const handlePlayPauseClick = () => {
         if (audioRef.current) {
-          if (isPlaying) {
-            audioRef.current.pause();
-          } else {
-            const maxTime = intervals[Math.min(tries, intervals.length - 1)];
-            audioRef.current.currentTime = 0;
-            audioRef.current.play();
-            setTimeout(() => {
-              audioRef.current?.pause();
-              setIsPlaying(false);
-            }, maxTime * 1000);
-          }
-          setIsPlaying(!isPlaying);
+            if (isPlaying) {
+                audioRef.current.pause();
+            } else {
+                const maxIntervalIndex = Math.min(tries, intervals.length - 1);
+                const maxTime = intervals[maxIntervalIndex];
+    
+                if (!firstPlay) {
+                    audioRef.current.currentTime = 0;
+                    setCurrentTime(0);
+                } else {
+                    setCurrentTime(audioRef.current.currentTime);
+                }
+    
+                audioRef.current.play();
+                const checkTime = () => {
+                    if (audioRef.current) {
+                        const currentTime = audioRef.current.currentTime;
+                        if (currentTime > maxTime) {
+                            audioRef.current.pause();
+                            setIsPlaying(false);
+                        } else {
+                            requestAnimationFrame(checkTime);
+                        }
+                    }
+                };
+                requestAnimationFrame(checkTime);
+            }
+            setIsPlaying(!isPlaying);
+            setfirstPlay(false);
         }
-      };
+    };
 
       const renderIntervalMarkers = () => {
         if (!duration) return null;
@@ -245,7 +273,19 @@ function Home() {
 
     //   SKIP BUTTON
     const skip = () => {
-        setTries(tries + 1)
+        setTries(prevTries => {
+            const newTries = prevTries + 1;
+            if (audioRef.current) {
+                const maxIntervalIndex = Math.min(newTries - 1, intervals.length - 1);
+                const newTime = intervals[maxIntervalIndex];
+                if (isFinite(newTime)) {
+                    audioRef.current.currentTime = newTime;
+                    setfirstPlay(true);
+                    
+                }
+            }
+            return newTries;
+        });
     };
     
     // GAME FINISH MODAL
@@ -260,66 +300,96 @@ function Home() {
     
 
     return (
-        <div>
-            {loading ? (
-            <div className='spinner'>
-                <Spinner />
-            </div>
-            ) : (
-            <div className="box-container">
-                {songGuesses.map((guessObj, index) => (
-                <div key={index}>
-                    <Answer color={guessObj.correct ? "green" : "red"} song={guessObj.guess} />
-                </div>
-                ))}
-                <Form onSubmit={handleSubmit} displayData={displayData} />
-                {!gameActive && (
-                <button onClick={selectRandomTrack}>play a random track</button>
-                )}
-                {randomTrack && (
-                <div>
-                    {randomTrack.preview_url && gameActive ? (
-                    <div className = 'audio-component'>
-                        <audio
-                        ref={audioRef}
-                        src={randomTrack.preview_url}
-                        onTimeUpdate={handleTimeUpdate}
-                        onLoadedMetadata={handleLoadedMetadata}
-                        />
-                        <div className = 'control-buttons'>
-                            <button className = 'play-pause-button' onClick={handlePlayPauseClick}>
-                                {isPlaying ? <VscDebugPause size={100} className="icon"/> : <IoPlay size={100} className="icon"/>}
-                            </button>
-                            <button className = 'play-pause-button'  onClick={skip}>
-                                skip
-                            </button>
-                        </div>
-                        <div className="progress-bar">
-                        <div
-                            className="progress"
-                            style={{ width: `${(currentTime.toFixed(2) / Math.round(duration)) * 100}%` }}
-                        />
-                        {renderIntervalMarkers()}
-                        </div>
-                        <p>stage {tries + 1}: {intervals[tries]} seconds</p>
-                        <p>tries remaining: {MAX_TRIES-tries}/{MAX_TRIES}</p>
-                    </div>
-                    ) : (
-                        <>
-                        </>
-                    )}
-                </div>
-                )}
-            </div>
-            )}
-            <Modal
-                isVisible={isModalVisible}
-                onClose={closeModal}
-                track={randomTrack}
-                isCorrect = {correct}
-            />
-        </div>
-        );
+      <div className="h-screen w-screen flex flex-col">
+          {loading ? (
+              <div className='spinner'>
+                  <Spinner />
+              </div>
+          ) : (
+              <div className="flex-1 relative">
+                  <div className="absolute top-0 left-0 w-full h-full z-0 inset-0">
+                      <div className="particle "></div>
+                      <div className="particle"></div>
+                      <div className="particle"></div>
+                      <div className="particle"></div>
+                  </div>
+                  <Navbar />
+                  <div className="relative z-10">
+                      <div className="box-container">
+                          {songGuesses.map((guessObj, index) => (
+                              <div key={index}>
+                                  <Answer color={guessObj.correct ? "#1DB954" : "red"} song={guessObj.guess} />
+                              </div>
+                          ))}
+                          <Form onSubmit={handleSubmit} displayData={displayData} />
+                          {!gameActive && (
+                              <button className="bg-transparent text-[#1DB954] hover:text-[#158b3f]" onClick={selectRandomTrack}>
+                                  <RxShuffle size={30} />
+                              </button>
+                          )}
+                          {randomTrack && (
+                              <div>
+                                  {randomTrack.preview_url && gameActive ? (
+                                      <div className='audio-component'>
+                                          <audio
+                                              ref={audioRef}
+                                              src={randomTrack.preview_url}
+                                              onTimeUpdate={handleTimeUpdate}
+                                              onLoadedMetadata={handleLoadedMetadata}
+                                          />
+                                          <div className='control-buttons'>
+                                              <button className='play-pause-button' onClick={handlePlayPauseClick}>
+                                                  {isPlaying ? <VscDebugPause size={100} className="icon" /> : <IoPlay size={100} className="icon" />}
+                                              </button>
+                                              <button className='play-pause-button' onClick={skip}>
+                                                  <PiFastForwardFill size={35} />
+                                              </button>
+                                          </div>
+                                          <div className="progress-bar">
+                                              <div
+                                                  className="progress"
+                                                  style={{ width: `${(currentTime.toFixed(2) / Math.round(duration)) * 100}%` }}
+                                              />
+                                              {renderIntervalMarkers()}
+                                          </div>
+                                          <p>stage {tries + 1}: {intervals[tries]} seconds</p>
+                                          <div className="flex justify-center items-center h-20">
+                                          {[...Array(MAX_TRIES + 1)].map((_, index) => (
+                                              <div
+                                                  key={index}
+                                                  className={`h-3 w-3 rounded-full mx-1 mt-[-5vh] ${
+                                                      index < tries
+                                                          ? 'bg-[#BE3535] transition-colors duration-500'
+                                                          : index === tries && correct
+                                                          ? 'bg-[#40b86a] transition-colors duration-500'
+                                                          : 'bg-gray-300'
+                                                  }`}
+                                                  style={{
+                                                      backgroundPosition: index < tries ? 'right' : 'left'
+                                                  }}
+                                              ></div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                  ) : (
+                                      <>
+                                      </>
+                                  )}
+                              </div>
+                          )}
+                      </div>
+                  </div>
+              </div>
+          )}
+          <Modal
+              isVisible={isModalVisible}
+              onClose={closeModal}
+              track={randomTrack}
+              isCorrect={correct}
+          />
+          <div id="particles-js" className="particles-container" />
+      </div>
+  );
     }
   
   export default Home;

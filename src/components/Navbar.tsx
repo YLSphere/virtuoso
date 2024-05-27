@@ -38,7 +38,6 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-container">
         <a href="/" className="navbar-logo">
-          {/* <FaSpotify size={40} /> */}
           {userProfile && (
             <div className="navbar-profile">
               <img
@@ -53,7 +52,7 @@ function Navbar() {
         <ul className="navbar-menu">
           <li className="navbar-item" onClick={logout}>
             <a href="/" className="navbar-link">
-              logout
+              <MdOutlineLogout size={20}/>
             </a>
           </li>
         </ul>

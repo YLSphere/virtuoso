@@ -6,7 +6,6 @@ import SpotifyWebApi from 'spotify-web-api-js';
 
 import '../css/App.css';
 import Virtuoso from './Virtuoso';
-import Navbar from '../components/Navbar';
 import Home from './Home';
 // import Callback from './Callback'
 
@@ -43,7 +42,6 @@ function App() {
         <SpotifyAuth />
       ) : (
       <div >
-        <Navbar />
         <Router>
           <div>
             <Routes>

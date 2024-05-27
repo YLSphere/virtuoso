@@ -1,8 +1,6 @@
 import React from 'react';
 import '../css/Modal.css';
 
-import { FaWindowClose } from "react-icons/fa";
-
 interface Track {
     id: string;
     name: string;
@@ -32,9 +30,9 @@ const Modal: React.FC<ModalProps> = ({ isCorrect, isVisible, onClose, track }) =
         {/* <button className = 'close-button' onClick={onClose}>
             <FaWindowClose size = {30}/>
         </button> */}
-        <h2 className = 'display-text font-bold mt-4'>{track.name}</h2>
-        <p className = 'display-text'>Artist: {track.artists.map((artist: any) => artist.name).join(', ')}</p>
-        <p className = 'display-text mb-4'>Album: {track.album.name}</p>
+        <h2 className = 'display-text font-bold mt-4 text-[20px]'>{track.name}</h2>
+        <p className = 'display-text'>{track.artists.map((artist: any) => artist.name).join(', ')}</p>
+        <p className = 'display-text mb-4'>{track.album.name}</p>
         <img className = 'mt-3 mb-2 mx-auto' src={track.album.images[0]?.url} alt={track.name} style={{ width: '80%'}} />
       </div>
     </div>

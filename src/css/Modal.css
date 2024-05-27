@@ -20,7 +20,7 @@
     width: 30%;
     max-width: 460px;
     text-align: center;
-    height: 57%;
+    height: 59%;
   }
   
   .modal-content img {
@@ -34,11 +34,11 @@
   }
 
   .modal-correct {
-    background-color: rgb(1, 87, 1);
+    background-color: #40b86a;
   }
   
   .modal-incorrect {
-    background-color: rgb(184, 59, 59);
+    background-color: #BE3535;
   }
 
   .close-button {

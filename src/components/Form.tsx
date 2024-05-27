@@ -83,7 +83,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData }) => {
         className='input'
         type="text"
         name="songGuess"
-        placeholder="guess a song"
+        placeholder="search"
         value={songGuess}
         onChange={handleInputChange}
         onFocus={handleInputFocus}
