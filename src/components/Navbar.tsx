@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../css/Navbar.css';
-import { useNavigate } from "react-router-dom";
-import { FaSpotify } from "react-icons/fa";
+import { MdOutlineLogout } from "react-icons/md";
+import { TbFilter } from "react-icons/tb";
 import axios from 'axios';
 
 interface UserProfile {
