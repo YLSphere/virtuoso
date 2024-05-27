@@ -14,7 +14,6 @@ function Virtuoso() {
   
     return (
       <div className="Virtuoso">
-        <Form />
         {/* 
         <div className="card">
           <button onClick={() => setCount((count) => count + 1)}>

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { displayDataExport } from '../pages/home';
+import React, { useState, useRef, useEffect } from 'react';
 import "../css/Form.css"
 
 interface DisplayData {
@@ -14,12 +13,18 @@ interface FormProps {
   displayData: DisplayData[];
 }
 
-
-
-const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
+const Form: React.FC<FormProps> = ({ onSubmit, displayData }) => {
   const [songGuess, setSongGuess] = useState('');
-  const [suggestions, setSuggestions] = useState<{ artist: string; name: string; index: number, wholeName: string}[]>([]);
+  const [suggestions, setSuggestions] = useState<DisplayData[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const suggestionsRef = useRef<HTMLUListElement | null>(null);
+  const [suggestionsHeight, setSuggestionsHeight] = useState(0);
+
+  useEffect(() => {
+    if (suggestionsRef.current) {
+      setSuggestionsHeight(suggestionsRef.current.clientHeight);
+    }
+  }, [suggestions]);
 
   const handleInputFocus = () => {
     setIsInputFocused(true);
@@ -32,19 +37,20 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit(songGuess);
+    setSongGuess('');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-  setSongGuess(value);
+    setSongGuess(value);
 
-  const filteredTracks = displayData.filter(track =>
-    track.wholeName.toLowerCase().includes(value.toLowerCase())
+    const filteredTracks = displayData.filter(track =>
+      track.wholeName.toLowerCase().includes(value.toLowerCase())
     );
     setSuggestions(filteredTracks);
   };
 
-  const handleSuggestionClick = (track: { wholeName: string }) => {
+  const handleSuggestionClick = (track: DisplayData) => {
     setSongGuess(track.wholeName);
     setSuggestions([]); // Clear suggestions
   };
@@ -55,7 +61,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.body.addEventListener('click', handleBodyClick);
     return () => {
       document.body.removeEventListener('click', handleBodyClick);
@@ -63,28 +69,28 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
   }, [isInputFocused]);
 
   return (
-    <form onSubmit={handleSubmit} className = 'form'>
-      <input
-        className = 'input'
-        type="text"
-        name="songGuess"
-        placeholder="Guess a song"
-        value={songGuess}
-        onChange={handleInputChange}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        required
-      />
-      <button type="submit" className = 'submit-button'>submit</button>
+    <form onSubmit={handleSubmit} className='form'>
       {suggestions.length > 0 && (
-        <ul className="suggestions">
-          {suggestions.slice(0, 10).map(track => (
+        <ul className="suggestions" ref={suggestionsRef} style={{ marginBottom: suggestionsHeight + 100 }}>
+          {suggestions.map(track => (
             <li key={track.index} onClick={() => handleSuggestionClick(track)}>
               {track.wholeName}
             </li>
           ))}
         </ul>
       )}
+      <input
+        className='input'
+        type="text"
+        name="songGuess"
+        placeholder="guess a song"
+        value={songGuess}
+        onChange={handleInputChange}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
+        required
+      />
+      <button type="submit" className='submit-button'>submit</button>
     </form>
   );
 };

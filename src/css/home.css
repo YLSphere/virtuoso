@@ -17,42 +17,115 @@
     align-items: center;
   }
 
-  .box-container {
+.box-container {
     height:97vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     max-width: 97vw;
     justify-content: center;
-  }
+}
 
-  .answer {
-    color:white;
-  }
+.answer {
+    color:white;    
+}
 
-  .spinner{
+.spinner{
     height:97vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     max-width: 97vw;
     justify-content: center;
-  }
+}
 
-  audio {
+audio {
     margin-top: 10px;
-  }
-  
-  .progress-bar {
-    width: 100%;
+}
+
+.progress-bar {
+    width: 70vh;
     background-color: #ddd;
     border-radius: 5px;
-    margin-top: 10px;
     height: 10px;
-  }
-  
-  .progress {
+    position: relative;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+
+
+.play-pause-button{
+    width: 65px;
+    height: 50px; /* Adjust the height as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: #068016;
+    text-decoration: inherit;
+
+}
+
+.icon {
+    width: 100%;
+    height: 100%;
+}
+
+.progress {
     height: 100%;
     background-color: #1db954;
-    border-radius: 5px;
+/* border-radius: 5px; */
+}
+
+.audio-component{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+}
+
+.interval-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: black;
+    z-index: 1;
+}
+
+.play-pause-button-button:hover {
+    filter: drop-shadow(0 0 2em #cccacaee);
+    color: #cccacaee;
+    outline: none;
+    border: none;
+}
+.play-pause-button-button:focus {
+    outline: none;
+    border: none;
+}
+.play-pause-button-button.react:hover {
+    filter: drop-shadow(0 0 2em #cccacaee);
+    outline: none;
+    border: none;
+}
+
+.play-pause-button:active {
+    outline: none;
+    border: none;
+}
+
+.control-buttons{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.play-pause-button, .skip-button {
+    margin: 0 270px;
   }

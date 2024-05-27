@@ -20,8 +20,11 @@
   
   .navbar-logo {
     font-size: 1.5rem;
-    color: #fff;
+    color:rgb(12, 197, 37);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
   }
   
   .navbar-menu {
@@ -45,4 +48,22 @@
   
   .navbar-link:hover {
     color: #ddd;
+  }
+
+  .navbar-profile {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .navbar-profile-name {
+    color: #b4b4b4;
+    font-weight: bold;
+    font-size: medium;
   }

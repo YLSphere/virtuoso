@@ -22,9 +22,11 @@
     width: 70vh;
     height: 4vh;
     border-radius: 5px;
-    /* border: 2px solid #b8bd7bee; */
     border: 2px solid white;
-    text-shadow: none !important;
+    text-shadow: none !important;   
+    padding: 8px;
+    padding-bottom: 10px;
+    background-color: black;
 }
 
 .submit-button:hover {
@@ -37,3 +39,25 @@
 .submit-button.react:hover {
     filter: drop-shadow(0 0 2em #cccacaee);
 }
+
+.suggestions {
+    border: 1px solid #ccc;
+    max-height: 200px; /* Adjust the height as needed */
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: absolute;
+    background-color: rgb(66, 64, 64);
+    z-index: 1000;
+    width: 70vh;
+  }
+  
+  .suggestions li {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .suggestions li:hover {
+    background-color: #6b6b6b;
+  }
