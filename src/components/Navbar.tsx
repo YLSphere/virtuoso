@@ -3,13 +3,21 @@ import '../css/Navbar.css';
 import { MdOutlineLogout } from "react-icons/md";
 import { TbFilter } from "react-icons/tb";
 import axios from 'axios';
+import Switch from 'react-switch';
+import { FaSpotify } from "react-icons/fa";
+import { AiFillFire } from "react-icons/ai";
 
 interface UserProfile {
   display_name: string;
   images: { url: string }[];
 }
 
-function Navbar() {
+interface NavbarProps {
+  customGame: boolean;
+  setCustomGame: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function Navbar(props: NavbarProps) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
@@ -33,6 +41,9 @@ function Navbar() {
   const logout = () => {
     window.localStorage.removeItem("token");
   };
+  const handleChange = () => {
+    props.setCustomGame((prevState:any) => !prevState);
+  };
 
   return (
     <nav className="navbar">
@@ -50,6 +61,16 @@ function Navbar() {
           )}
         </a>
         <ul className="navbar-menu">
+          <li className="navbar-item">
+            <div className="toggle-container">
+              <span className="toggle-label">{props.customGame ? <FaSpotify size = {20} style = {{color: "#40b86a"}}/> : <AiFillFire size = {20} style = {{color: "#c94545"}}/>}</span>
+              <label className="switch">
+                <input type="checkbox" checked={props.customGame} onChange={handleChange} />
+                <span className="slider round"></span>
+              </label>
+              
+            </div>
+          </li>
           <li className="navbar-item" onClick={logout}>
             <a href="/" className="navbar-link">
               <MdOutlineLogout size={20}/>

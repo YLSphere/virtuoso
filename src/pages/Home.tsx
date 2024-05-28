@@ -52,6 +52,7 @@ function Home() {
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [firstPlay, setfirstPlay] = useState<boolean>(true);
+    const [customGame, setCustomGame] = useState<boolean>(false);
     
     
     const [topTracks, setTopTracks] = useState<Track[]>([]);
@@ -99,23 +100,69 @@ function Home() {
               let limit = 50;
               let offset = 0;
               let fetchMore = true;
-    
-              while (fetchMore) {
-                const { data } = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                  params: {
-                    limit,
-                    offset,
-                  },
-                });
-                allTracks = allTracks.concat(data.items);
-                offset += limit;
-                if (data.items.length < limit || allTracks.length >= TRACK_LENGTH) {
-                  fetchMore = false;
+
+              const playlistIds = [
+                '37i9dQZF1DXcBWIGoYBM5M', // Top 50 - Global
+                '37i9dQZF1DX0XUsuxWHRQd', // Viral 50 - Global
+                '1WH6WVBwPBz35ZbWsgCpgr', // Top pop hits 2015-2024
+                '041EEjr8FMkWlzbuKnSXYD', // Top rap hits 2015-2024
+                '7E3uEa1emOcbZJuB8sFXeK', // Top hits 2000-2024
+                '37i9dQZF1DX26DKvjp0s9M', // Indie essentials
+                '69PHTPtNEdwgfnKvbi6i04' // snowflake
+
+            ];
+              
+              if (customGame){
+                while (fetchMore) {
+                  const { data } = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                    params: {
+                      limit,
+                      offset,
+                    },
+                  });
+                  allTracks = allTracks.concat(data.items);
+                  offset += limit;
+                  if (data.items.length < limit || allTracks.length >= TRACK_LENGTH) {
+                    fetchMore = false;
+                  }
                 }
+              } else {
+                while (fetchMore) {
+                  for (const playlistId of playlistIds) {
+                      try {
+                          const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+                              headers: {
+                                  Authorization: `Bearer ${token}`,
+                              },
+                              params: {
+                                  limit,
+                                  offset,
+                              },
+                          });
+              
+
+                          data.items.forEach((item:any) => {
+                              if (item.track) {
+                                  allTracks.push(item.track);
+                              }
+                          });
+              
+                          offset += limit;
+                          if (data.items.length < limit || allTracks.length >= TRACK_LENGTH) {
+                              fetchMore = false;
+                          }
+                      } catch (error) {
+                          console.error('Error fetching playlist tracks:', error);
+                          fetchMore = false; // Stop fetching if an error occurs
+                      }
+                  }
               }
+
+              }
+              
               setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
             } catch (error) {
               console.error('Error fetching top tracks:', error);
@@ -125,7 +172,7 @@ function Home() {
           }
         };
         fetchTopTracks();
-      }, [token]);
+      }, [token, customGame]);
 
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
@@ -313,7 +360,9 @@ function Home() {
                       <div className="particle"></div>
                       <div className="particle"></div>
                   </div>
-                  <Navbar />
+                  <Navbar 
+                    customGame={customGame} setCustomGame={setCustomGame}
+                  />
                   <div className="relative z-10">
                       <div className="box-container">
                           {songGuesses.map((guessObj, index) => (

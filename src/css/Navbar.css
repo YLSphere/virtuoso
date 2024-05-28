@@ -68,48 +68,79 @@
     font-size: medium;
   }
 
-  .dropbtn {
-    background-color: transparent;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  /* Dropdown button on hover & focus */
-  .dropbtn:hover, .dropbtn:focus {
-    background-color: #ddd;
-  }
-  
-  /* The container <div> - needed to position the dropdown content */
-  .dropdown {
+  .switch {
     position: relative;
     display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
   }
 
-  .dropdown-content {
-    display: none;
+  .slider {
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    outline-color: #ccc;
+    outline-width: 2px;
+    outline-style: solid;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 17px; /* Adjusted border radius for smaller slider */
+    width: 40px; /* Adjusted width */
+    height: 18px; /* Adjusted height */
   }
   
-  /* Links inside the dropdown */
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px; /* Adjusted height of the slider button */
+    width: 14px; /* Adjusted width of the slider button */
+    left: 2px; /* Adjusted left position */
+    bottom: 2px; /* Adjusted bottom position */
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
   }
   
-  /* Change color of dropdown links on hover */
-  .dropdown-content a:hover {background-color: #ddd;}
+  input:checked + .slider {
+    background-color: #40b86a;
+  }
   
-  /* Show the dropdown menu on hover */
-  .dropdown:hover .dropdown-content {display: block;}
+  input:focus + .slider {
+    box-shadow: 0 0 1px #40b86a;
+  }
   
-  /* Change the background color of the dropdown button when the dropdown content is shown */
-  .dropdown:hover .dropbtn {background-color: #ddd;}
+  input:checked + .slider:before {
+    -webkit-transform: translateX(22px);
+    -ms-transform: translateX(22px);
+    transform: translateX(22px);
+  }
+  
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    
+  }
+  
+  .toggle-label {
+    margin-right: 10px;
+    margin-bottom: 18px;
+  }
