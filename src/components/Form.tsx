@@ -57,7 +57,6 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData }) => {
     ).filter(track => track !== undefined) as DisplayData[];
   
     setSuggestions(filteredTracks);
-    console.log(filteredTracks.length);
   };
 
   const handleSuggestionClick = (track: DisplayData) => {

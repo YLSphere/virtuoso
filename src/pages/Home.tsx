@@ -169,7 +169,6 @@ function Home() {
               }
               
               setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
-              console.log(allTracks.length);
             } catch (error) {
               console.error('Error fetching top tracks:', error);
             } finally {
@@ -195,19 +194,19 @@ function Home() {
     
     //    ENDING GAME
       useEffect(() => {
-        if (tries <= MAX_TRIES && correct){
+        if (tries <= (MAX_TRIES + 1) && correct){
             if (audioRef.current){
                 setIsModalVisible(true);
                 setStreak(streak + 1);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
-                
             }
         }
       }, [tries]);
 
       useEffect(() => {
-        if (tries > MAX_TRIES){
+        if (tries >= (MAX_TRIES + 1) && !correct){
+
             if (audioRef.current){
                 setIsModalVisible(true);
                 audioRef.current.currentTime = 0;
@@ -226,7 +225,6 @@ function Home() {
             const randomIndex = Math.floor(Math.random() * topTracks.length);
             const selectedTrack = topTracks[randomIndex];
             setRandomTrack(selectedTrack);
-            console.log(selectedTrack.name);
             setAnswerIndex(randomIndex);
             setCorrect(false)
             setGameActive(true)
