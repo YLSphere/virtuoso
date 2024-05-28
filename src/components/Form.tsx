@@ -44,10 +44,20 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData }) => {
     const value = e.target.value;
     setSongGuess(value);
 
-    const filteredTracks = displayData.filter(track =>
-      track.wholeName.toLowerCase().includes(value.toLowerCase())
+    const uniqueWholeNames = Array.from(
+      new Set(
+        displayData
+          .filter(track => track.wholeName.toLowerCase().includes(value.toLowerCase()))
+          .map(track => track.wholeName)
+      )
     );
+  
+    const filteredTracks = uniqueWholeNames.map(wholeName =>
+      displayData.find(track => track.wholeName === wholeName)
+    ).filter(track => track !== undefined) as DisplayData[];
+  
     setSuggestions(filteredTracks);
+    console.log(filteredTracks.length);
   };
 
   const handleSuggestionClick = (track: DisplayData) => {

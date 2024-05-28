@@ -150,7 +150,7 @@ function Home() {
                                   offset,
                               },
                           });
-                          
+
                           const tracks = data.items.map((item:any) => item.track).filter((track:any) => track !== null);
                           offset += limit;
 
@@ -167,7 +167,9 @@ function Home() {
               }
 
               }
+              
               setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
+              console.log(allTracks.length);
             } catch (error) {
               console.error('Error fetching top tracks:', error);
             } finally {
