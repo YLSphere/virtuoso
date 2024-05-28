@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import '../css/Navbar.css';
+import Streak from '../components/Streak';
 import { MdOutlineLogout } from "react-icons/md";
 import { TbFilter } from "react-icons/tb";
 import axios from 'axios';
-import Switch from 'react-switch';
 import { FaSpotify } from "react-icons/fa";
-import { AiFillFire } from "react-icons/ai";
+import { IoMdTrendingUp } from "react-icons/io";
 
 interface UserProfile {
   display_name: string;
@@ -15,6 +15,7 @@ interface UserProfile {
 interface NavbarProps {
   customGame: boolean;
   setCustomGame: React.Dispatch<React.SetStateAction<boolean>>;
+  streak: number;
 }
 
 function Navbar(props: NavbarProps) {
@@ -61,9 +62,12 @@ function Navbar(props: NavbarProps) {
           )}
         </a>
         <ul className="navbar-menu">
+          <li className="navbar-item mr-[7vh]">
+            <Streak value={props.streak} />
+          </li>
           <li className="navbar-item">
             <div className="toggle-container">
-              <span className="toggle-label">{props.customGame ? <FaSpotify size = {25} style = {{color: "#40b86a"}}/> : <AiFillFire size = {25} style = {{color: "#c94545"}}/>}</span>
+              <span className="toggle-label">{props.customGame ? <FaSpotify size = {25} style = {{color: "#40b86a"}}/> : <IoMdTrendingUp size = {25} style = {{color: "#d8d649"}}/>}</span>
               <label className="switch">
                 <input type="checkbox" checked={props.customGame} onChange={handleChange} />
                 <span className="slider round"></span>

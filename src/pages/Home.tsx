@@ -9,7 +9,7 @@ import Form from '../components/Form'
 import Spinner from '../components/Spinner'
 import Modal from '../components/Modal';
 import Navbar from '../components/Navbar';
-import Streak from '../components/Streak';
+
 
 
 
@@ -105,14 +105,17 @@ function Home() {
               let fetchMore = true;
 
               const playlistIds = [
-                '37i9dQZF1DXcBWIGoYBM5M', // Top 50 - Global
-                '37i9dQZF1DX0XUsuxWHRQd', // Viral 50 - Global
-                '1WH6WVBwPBz35ZbWsgCpgr', // Top pop hits 2015-2024
-                '041EEjr8FMkWlzbuKnSXYD', // Top rap hits 2015-2024
-                '7E3uEa1emOcbZJuB8sFXeK', // Top hits 2000-2024
-                '37i9dQZF1DX26DKvjp0s9M', // Indie essentials
-                '69PHTPtNEdwgfnKvbi6i04' // snowflake
-
+                '37i9dQZF1DWT1y71ZcMPe5', // It's a Hit!
+                '37i9dQZF1DWVlLVXKTOAYa', // Pop Right Now
+                '37i9dQZF1DWYBO1MoTDhZI', // Good Vibes
+                '37i9dQZF1DX2KwEtNSejGe', // pop songs we can all scream
+                '37i9dQZF1DWUZMtnnlvJ9p', // The Ultimate Hit Mix
+                '37i9dQZF1DX3rxVfibe1L0', // Mood Booster
+                '37i9dQZF1DX5Vy6DFOcx00', // big on the internet
+                '37i9dQZF1DX2L0iB23Enbq', // Viral Hits
+                '37i9dQZF1DX7rOY2tZUw1k', // Timeless Love Songs
+                '37i9dQZF1DX0018ciYu6bM', // KimBops!
+                '37i9dQZF1DWTl4y3vgJOXW' // Locked In
             ];
               
               if (customGame){
@@ -133,8 +136,10 @@ function Home() {
                   }
                 }
               } else {
-                while (fetchMore) {
-                  for (const playlistId of playlistIds) {
+                for (const playlistId of playlistIds) {
+                  fetchMore = true;
+                  offset = 0;
+                  while (fetchMore) {
                       try {
                           const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
                               headers: {
@@ -145,17 +150,14 @@ function Home() {
                                   offset,
                               },
                           });
-              
-
-                          data.items.forEach((item:any) => {
-                              if (item.track) {
-                                  allTracks.push(item.track);
-                              }
-                          });
-              
+                          
+                          const tracks = data.items.map((item:any) => item.track).filter((track:any) => track !== null);
                           offset += limit;
-                          if (data.items.length < limit || allTracks.length >= TRACK_LENGTH) {
+
+                          if (data.items.length === 0 || allTracks.length >= TRACK_LENGTH) {
                               fetchMore = false;
+                          } else{
+                            allTracks = allTracks.concat(tracks);
                           }
                       } catch (error) {
                           console.error('Error fetching playlist tracks:', error);
@@ -165,7 +167,6 @@ function Home() {
               }
 
               }
-              
               setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
             } catch (error) {
               console.error('Error fetching top tracks:', error);
@@ -364,7 +365,7 @@ function Home() {
                       <div className="particle"></div>
                   </div>
                   <Navbar 
-                    customGame={customGame} setCustomGame={setCustomGame}
+                    customGame={customGame} setCustomGame={setCustomGame} streak = {streak}
                   />
                   <div className="relative z-10">
                       <div className="box-container">
@@ -430,7 +431,6 @@ function Home() {
                                   )}
                               </div>
                           )}
-                          <Streak value={streak} />
                       </div>
                   </div>
               </div>
