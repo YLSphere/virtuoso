@@ -9,6 +9,8 @@ import Form from '../components/Form'
 import Spinner from '../components/Spinner'
 import Modal from '../components/Modal';
 import Navbar from '../components/Navbar';
+import Streak from '../components/Streak';
+
 
 
 import { VscDebugPause } from "react-icons/vsc";
@@ -53,6 +55,7 @@ function Home() {
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [firstPlay, setfirstPlay] = useState<boolean>(true);
     const [customGame, setCustomGame] = useState<boolean>(false);
+    const [streak, setStreak] = useState<number>(0);
     
     
     const [topTracks, setTopTracks] = useState<Track[]>([]);
@@ -192,12 +195,13 @@ function Home() {
         if (tries <= MAX_TRIES && correct){
             if (audioRef.current){
                 setIsModalVisible(true);
+                setStreak(streak + 1);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
-                console.log('YOU WIN')
+                
             }
         }
-      }, [audioRef, correct, tries]);
+      }, [tries]);
 
       useEffect(() => {
         if (tries > MAX_TRIES){
@@ -205,11 +209,10 @@ function Home() {
                 setIsModalVisible(true);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
-                console.log('YOU LOSE')
+                setStreak(0);
             }
-            
         }
-      }, [audioRef, correct, tries]);
+      }, [tries]);
 
 
     const selectRandomTrack = () => {
@@ -220,7 +223,7 @@ function Home() {
             const randomIndex = Math.floor(Math.random() * topTracks.length);
             const selectedTrack = topTracks[randomIndex];
             setRandomTrack(selectedTrack);
-            // console.log(selectedTrack);
+            console.log(selectedTrack.name);
             setAnswerIndex(randomIndex);
             setCorrect(false)
             setGameActive(true)
@@ -353,7 +356,7 @@ function Home() {
                   <Spinner />
               </div>
           ) : (
-              <div className="flex-1 relative">
+              <div className="flex-1 relative unblur">
                   <div className="absolute top-0 left-0 w-full h-full z-0 inset-0">
                       <div className="particle "></div>
                       <div className="particle"></div>
@@ -418,6 +421,7 @@ function Home() {
                                                   }}
                                               ></div>
                                           ))}
+                                          
                                         </div>
                                       </div>
                                   ) : (
@@ -426,6 +430,7 @@ function Home() {
                                   )}
                               </div>
                           )}
+                          <Streak value={streak} />
                       </div>
                   </div>
               </div>

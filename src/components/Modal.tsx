@@ -27,9 +27,6 @@ const Modal: React.FC<ModalProps> = ({ isCorrect, isVisible, onClose, track }) =
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className={`modal-content ${isCorrect ? 'modal-correct' : 'modal-incorrect'}`} onClick={(e) => e.stopPropagation()}>
-        {/* <button className = 'close-button' onClick={onClose}>
-            <FaWindowClose size = {30}/>
-        </button> */}
         <h2 className = 'display-text font-bold mt-4 text-[20px]'>{track.name}</h2>
         <p className = 'display-text'>{track.artists.map((artist: any) => artist.name).join(', ')}</p>
         <p className = 'display-text mb-4'>{track.album.name}</p>

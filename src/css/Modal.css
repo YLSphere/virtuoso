@@ -1,7 +1,5 @@
 .modal-overlay {
     position: fixed;
-    right: 0;
-    bottom: 0;
     top: 0;
     left: 0;
     width: 100%;
@@ -15,44 +13,45 @@
   
   .modal-content {
     background: rgb(163, 162, 162);
-    padding: 10px;
-    border-radius: 10px;
-    width: 30%;
+    padding: 1vw; /* Adjusted padding */
+    padding-bottom: 5vh;
+    border-radius: 1vw; /* Adjusted border radius */
+    width: 60%; /* Adjusted width */
     max-width: 460px;
     text-align: center;
-    height: 59%;
+    max-height: 80vh; /* Adjusted max height */
+    overflow-y: auto; /* Added overflow-y for scrolling content */
   }
   
   .modal-content img {
     width: 100%;
     height: auto;
   }
-
-  .display-text{
-    color:white;
+  
+  .display-text {
+    color: white;
     font-family: inherit;
   }
-
+  
   .modal-correct {
     background-color: #40b86a;
   }
   
   .modal-incorrect {
-    background-color: #BE3535;
+    background-color: #be3535;
   }
-
+  
   .close-button {
     position: absolute;
-    top: 19vh;
-    left: 34.7vw;
+    top: 2vw; /* Adjusted top position */
+    right: 2vw; /* Adjusted right position */
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: 2vw; /* Adjusted font size */
     color: rgb(255, 255, 255);
     cursor: pointer;
   }
-
-
+  
   .close-button:hover {
     color: darkgray;
   }

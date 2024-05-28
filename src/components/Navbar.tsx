@@ -63,7 +63,7 @@ function Navbar(props: NavbarProps) {
         <ul className="navbar-menu">
           <li className="navbar-item">
             <div className="toggle-container">
-              <span className="toggle-label">{props.customGame ? <FaSpotify size = {20} style = {{color: "#40b86a"}}/> : <AiFillFire size = {20} style = {{color: "#c94545"}}/>}</span>
+              <span className="toggle-label">{props.customGame ? <FaSpotify size = {25} style = {{color: "#40b86a"}}/> : <AiFillFire size = {25} style = {{color: "#c94545"}}/>}</span>
               <label className="switch">
                 <input type="checkbox" checked={props.customGame} onChange={handleChange} />
                 <span className="slider round"></span>
@@ -73,7 +73,7 @@ function Navbar(props: NavbarProps) {
           </li>
           <li className="navbar-item" onClick={logout}>
             <a href="/" className="navbar-link">
-              <MdOutlineLogout size={20}/>
+              <MdOutlineLogout size={25}/>
             </a>
           </li>
         </ul>

@@ -129,3 +129,18 @@ audio {
 .play-pause-button, .skip-button {
     margin: 0 30vh;
   }
+
+@keyframes unblur {
+    from {
+        filter: blur(10px);
+        opacity: 0;
+}
+    to {
+        filter: blur(0);
+        opacity: 1;
+}
+}
+
+.unblur {
+    animation: unblur 0.5s ease forwards;
+}
