@@ -13,12 +13,15 @@ import Navbar from '../components/Navbar';
 
 
 
+
 import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
+// import {Checkbox} from "@nextui-org/checkbox";
 
 
+type StringDictionary = { [key: string]: string[] };
 interface Track {
     id: string;
     name: string;
@@ -37,13 +40,13 @@ interface DisplayData {
     wholeName: string;
 }
 
-interface Genre {
-  name: string;
-}
-
 let intervals = [0.2, 1, 2, 4, 8, 15, 30];
 let MAX_TRIES = 6;
-let TRACK_LENGTH = 1000;
+let TRACK_LENGTH = 10;
+let AVG_TRACKS_IN_PLAYLISTS = 50;
+
+
+
 function Home() {
 
     const [token, setToken] = useState<string | null>(null);
@@ -72,6 +75,64 @@ function Home() {
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
+    const [genrePopover, setGenrePopover] = useState<boolean>(false);
+    const [genres, setGenres] = useState<StringDictionary>(
+      {
+        'modern pop':[
+          '37i9dQZF1DWT1y71ZcMPe5', // It's a Hit!
+          '37i9dQZF1DWVlLVXKTOAYa', // Pop Right Now
+          '37i9dQZF1DXcBWIGoYBM5M', // Today’s Top Hits
+          '37i9dQZF1DX5Vy6DFOcx00', // big on the internet
+          '37i9dQZF1DWYBO1MoTDhZI', // Good Vibes
+          '37i9dQZF1DX2L0iB23Enbq', // Viral Hits
+          '37i9dQZF1DWUa8ZRTfalHk' // Pop Rising
+  
+        ],
+        "00's pop":[
+          '37i9dQZF1DX2KwEtNSejGe', // pop songs we can all scream
+          '5hBt2KAyj6SKUyuzdcIZh5', // the pompeii playlist
+          '4GZT3MbZ4IwjtIxKuYerfu', // Throwback Bangers (2000s)
+          '5XqZ2d63EIiiU17DOGfouA', // 2010-2017 throwbacks
+          '6oPaWRFxVztzwMpaZTmusU', // Throwback songs everyone knows
+          '5r3dfWzTXMfiiO9rmzUCP9', // Throwback Hits (1990-2010)
+          '6zGbgDCvY2ph9e80EqTKVd', // Noughties 00s Throwback Y2K
+          '37i9dQZF1DX7F6T2n2fegs' // Throwback Party *
+  
+        ],
+        'alternative':[
+          '37i9dQZF1DXbO6rt3GhXDY', // Indie Pop Hits
+          '37i9dQZF1DX2DKrE9X6Abv', // end credits
+          '37i9dQZF1DWZq91oLsHZvy', // Indie Running *
+          '37i9dQZF1DWVsh2vXzlKFb', // Summer Indie *
+          '37i9dQZF1DX4OzrY981I1W', // my life is a movie *
+          '37i9dQZF1DXb9izPIc0SCS', // Indie Rock Hits
+          '37i9dQZF1DWVV27DiNWxk' // Sad Indie
+  
+        ],
+        // 'rock':[],
+        'kpop':[
+          '37i9dQZF1DX9tPFwDMOaN1', // K-Pop On!
+          '37i9dQZF1DX0018ciYu6bM', // KimBops!
+          '37i9dQZF1DXbSWYCNwaARB', // Girl Krush *
+          '37i9dQZF1DX1gjl24GAQC0', // Hallyu Boy Bands *
+          '37i9dQZF1DX4RDXswvP6Mj', // K-Club Party *
+          '37i9dQZF1DXdR77H5Z8MIM', // Nolja!
+          '37i9dQZF1DWUoY6Ih7vsxr', // Millennium K-Pop *
+          '37i9dQZF1DX3ZeFHRhhi7Y', // WOR K OUT *
+  
+        ],
+        // 'k-rnb':[],
+        // 'cantopop':[],
+        // 'mandopop':[],
+        // 'rap':[],
+        // '80s/90s':[],
+  
+  
+  
+      }
+    );
+    const [myGenres, setMyGenres] = useState<StringDictionary>(genres);
+    
     
 
   useEffect(() => {
@@ -103,20 +164,7 @@ function Home() {
               let limit = 50;
               let offset = 0;
               let fetchMore = true;
-
-              const playlistIds = [
-                '37i9dQZF1DWT1y71ZcMPe5', // It's a Hit!
-                '37i9dQZF1DWVlLVXKTOAYa', // Pop Right Now
-                '37i9dQZF1DWYBO1MoTDhZI', // Good Vibes
-                '37i9dQZF1DX2KwEtNSejGe', // pop songs we can all scream
-                '37i9dQZF1DWUZMtnnlvJ9p', // The Ultimate Hit Mix
-                '37i9dQZF1DX3rxVfibe1L0', // Mood Booster
-                '37i9dQZF1DX5Vy6DFOcx00', // big on the internet
-                '37i9dQZF1DX2L0iB23Enbq', // Viral Hits
-                // '37i9dQZF1DX7rOY2tZUw1k', // Timeless Love Songs
-                '37i9dQZF1DX0018ciYu6bM', // KimBops!
-                '37i9dQZF1DWTl4y3vgJOXW' // Locked In
-            ];
+              
               
               if (customGame){
                 while (fetchMore) {
@@ -136,10 +184,18 @@ function Home() {
                   }
                 }
               } else {
-                for (const playlistId of playlistIds) {
-                  fetchMore = true;
-                  offset = 0;
-                  while (fetchMore) {
+                let maxPlaylistsPerGenre = (TRACK_LENGTH/AVG_TRACKS_IN_PLAYLISTS)/Object.keys(myGenres).length;
+                
+                for (const genre in Object.keys(myGenres)){
+                  let count = 0;
+                  let max = Math.max(Object.keys(myGenres).length, maxPlaylistsPerGenre);
+                  for (const playlistId of myGenres[Object.keys(myGenres)[genre]]) {
+                    if (count == max){
+                      continue;
+                    }
+                    fetchMore = true;
+                    offset = 0;
+                    while (fetchMore) {
                       try {
                           const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
                               headers: {
@@ -163,9 +219,10 @@ function Home() {
                           console.error('Error fetching playlist tracks:', error);
                           fetchMore = false; // Stop fetching if an error occurs
                       }
+                    }
+                    count++;
                   }
-              }
-
+                }
               }
               
               setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
@@ -177,7 +234,7 @@ function Home() {
           }
         };
         fetchTopTracks();
-      }, [token, customGame]);
+      }, [token, customGame, myGenres]);
 
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
@@ -216,7 +273,7 @@ function Home() {
         }
       }, [tries]);
 
-
+    // STARTING NEW GAME
     const selectRandomTrack = () => {
       
         setTries(0)
@@ -247,7 +304,7 @@ function Home() {
         }
       }, [audioRef.current]);
       
-
+    // AUDIO TIM UPDATES
     const handleTimeUpdate = () => {
         if (audioRef.current) {
             setCurrentTime(audioRef.current.currentTime);
@@ -261,6 +318,7 @@ function Home() {
         }
     };
 
+    // ANSWER BOX
     const Answer: React.FC<{ color: string, song: string}> = ({ color, song }) => {
     return <div className="box" style={{ backgroundColor: color }}>
         <p className = 'answer'>{song}</p>
@@ -268,6 +326,7 @@ function Home() {
     </div>;
     };
 
+    //INPUT SUBMIT
     const handleSubmit = (value: string) => {
         const isCorrect = displayData[answerIndex].wholeName === value;
         setSongGuesses([...songGuesses, { guess: value, correct: isCorrect }]);
@@ -276,6 +335,8 @@ function Home() {
         }
         setTries(tries + 1);
     };
+
+    
 
     // PLAY PAUSE BUTTON
     const handlePlayPauseClick = () => {
@@ -312,6 +373,7 @@ function Home() {
         }
     };
 
+      // DURATION INTERVAL BARS
       const renderIntervalMarkers = () => {
         if (!duration) return null;
         return intervals.map((interval, index) => (
@@ -349,6 +411,12 @@ function Home() {
         setIsModalVisible(false);
         setSongGuesses([]);
     };
+
+    // GENRE MODAL
+    useEffect(() => {
+      if (genrePopover){
+      }
+    }, [genrePopover]);
     
 
     return (
@@ -370,18 +438,20 @@ function Home() {
                   />
                   <div className="relative z-10">
                       <div className="box-container">
-                          {songGuesses.map((guessObj, index) => (
-                              <div key={index}>
-                                  <Answer color={guessObj.correct ? "#1DB954" : "red"} song={guessObj.guess} />
-                              </div>
-                          ))}
-                          <Form onSubmit={handleSubmit} displayData={displayData} />
-                          {!gameActive && (
-                              <button className="bg-transparent text-[#1DB954] hover:text-[#158b3f]" onClick={selectRandomTrack}>
-                                  <RxShuffle size={30} />
-                              </button>
-                          )}
-                          {randomTrack && (
+                          <div className = 'item-start flex flex-row'>
+                            <div className = 'flex items-center flex-col'>
+                              {songGuesses.map((guessObj, index) => (
+                                <div className = 'flex justify-start mr-[62px]' key={index}>
+                                    <Answer color={guessObj.correct ? "#1DB954" : "red"} song={guessObj.guess} />
+                                </div>
+                              ))}
+                              <Form onSubmit={handleSubmit} displayData={displayData} />
+                              {!gameActive && (
+                                <button className="bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 mr-[32px]" onClick={selectRandomTrack}>
+                                    <RxShuffle size={30} />
+                                </button>
+                              )}
+                              {randomTrack && (
                               <div>
                                   {randomTrack.preview_url && gameActive ? (
                                       <div className='audio-component'>
@@ -423,7 +493,6 @@ function Home() {
                                                   }}
                                               ></div>
                                           ))}
-                                          
                                         </div>
                                       </div>
                                   ) : (
@@ -432,6 +501,10 @@ function Home() {
                                   )}
                               </div>
                           )}
+                            </div>
+                            <div>
+                            </div>
+                          </div>
                       </div>
                   </div>
               </div>

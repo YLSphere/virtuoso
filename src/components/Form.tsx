@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import "../css/Form.css"
 
+import GenrePopover from '../components/GenrePopover';
+
 interface DisplayData {
   artist: string;
   name: string;
@@ -13,7 +15,7 @@ interface FormProps {
   displayData: DisplayData[];
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit, displayData }) => {
+const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
   const [songGuess, setSongGuess] = useState('');
   const [suggestions, setSuggestions] = useState<DisplayData[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -88,18 +90,25 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData }) => {
           ))}
         </ul>
       )}
-      <input
-        className='input'
-        type="text"
-        name="songGuess"
-        placeholder="search"
-        value={songGuess}
-        onChange={handleInputChange}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        required
-      />
-      <button type="submit" className='submit-button'>submit</button>
+      <div className = 'flex flex-row items-start justify-center'>
+        <div className = "flex flex-col justify-center">
+          <input
+            className='input'
+            type="text"
+            name="songGuess"
+            placeholder="search"
+            value={songGuess}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            required
+          />
+          <button type="submit" className='submit-button'>submit</button>
+        </div>
+        <div><GenrePopover /></div>
+        
+      </div>
+      
     </form>
   );
 };
