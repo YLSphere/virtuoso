@@ -2,20 +2,26 @@ import React, { useState, useRef, useEffect } from 'react';
 import "../css/Form.css"
 
 import GenrePopover from '../components/GenrePopover';
-
 interface DisplayData {
   artist: string;
   name: string;
   index: number;
   wholeName: string;
+  
 }
+
 
 interface FormProps {
   onSubmit: (value: string) => void;
   displayData: DisplayData[];
+  allGenres:string[];
+  setSelectedGenres: any;
+  myGenres: string[];
+  setGenreMenuOpen: any;
+  genreMenuOpen: boolean;
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
+const Form: React.FC<FormProps> = ({ onSubmit, displayData, allGenres, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen}) => {
   const [songGuess, setSongGuess] = useState('');
   const [suggestions, setSuggestions] = useState<DisplayData[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -105,7 +111,14 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData}) => {
           />
           <button type="submit" className='submit-button'>submit</button>
         </div>
-        <div><GenrePopover /></div>
+        <div><GenrePopover 
+          allGenres = {allGenres} 
+          setSelectedGenres = {setSelectedGenres} 
+          myGenres = {myGenres} 
+          setGenreMenuOpen = {setGenreMenuOpen}
+          genreMenuOpen = {genreMenuOpen}
+          />
+        </div>
         
       </div>
       

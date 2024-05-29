@@ -10,15 +10,10 @@ import Spinner from '../components/Spinner'
 import Modal from '../components/Modal';
 import Navbar from '../components/Navbar';
 
-
-
-
-
 import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
-// import {Checkbox} from "@nextui-org/checkbox";
 
 
 type StringDictionary = { [key: string]: string[] };
@@ -42,7 +37,7 @@ interface DisplayData {
 
 let intervals = [0.2, 1, 2, 4, 8, 15, 30];
 let MAX_TRIES = 6;
-let TRACK_LENGTH = 10;
+let TRACK_LENGTH = 1000;
 let AVG_TRACKS_IN_PLAYLISTS = 50;
 
 
@@ -75,10 +70,10 @@ function Home() {
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    const [genrePopover, setGenrePopover] = useState<boolean>(false);
+    const [genreMenuOpen, setGenreMenuOpen] = useState<boolean>(false);
     const [genres, setGenres] = useState<StringDictionary>(
       {
-        'modern pop':[
+        'modern_pop':[
           '37i9dQZF1DWT1y71ZcMPe5', // It's a Hit!
           '37i9dQZF1DWVlLVXKTOAYa', // Pop Right Now
           '37i9dQZF1DXcBWIGoYBM5M', // Today’s Top Hits
@@ -88,7 +83,7 @@ function Home() {
           '37i9dQZF1DWUa8ZRTfalHk' // Pop Rising
   
         ],
-        "00's pop":[
+        "00s_pop":[
           '37i9dQZF1DX2KwEtNSejGe', // pop songs we can all scream
           '5hBt2KAyj6SKUyuzdcIZh5', // the pompeii playlist
           '4GZT3MbZ4IwjtIxKuYerfu', // Throwback Bangers (2000s)
@@ -109,7 +104,7 @@ function Home() {
           '37i9dQZF1DWVV27DiNWxk' // Sad Indie
   
         ],
-        // 'rock':[],
+        'rock':[],
         'kpop':[
           '37i9dQZF1DX9tPFwDMOaN1', // K-Pop On!
           '37i9dQZF1DX0018ciYu6bM', // KimBops!
@@ -121,17 +116,16 @@ function Home() {
           '37i9dQZF1DX3ZeFHRhhi7Y', // WOR K OUT *
   
         ],
-        // 'k-rnb':[],
-        // 'cantopop':[],
-        // 'mandopop':[],
-        // 'rap':[],
-        // '80s/90s':[],
-  
-  
-  
+        'krnb':[],
+        'cantopop':[],
+        'mandopop':[],
+        'hiphop':[],
+        '80s90s':[],
       }
     );
-    const [myGenres, setMyGenres] = useState<StringDictionary>(genres);
+    const [allGenres, setAllGenres] = useState<string[]>(Object.keys(genres));
+    const [myGenres, setMyGenres] = useState<string[]>(allGenres);
+    
     
     
 
@@ -152,89 +146,90 @@ function Home() {
       }
   }, []);
 
-
-
-    // API FETCH TOP TRACKS
+  // API FETCH TOP TRACKS
     useEffect(() => {
-        const fetchTopTracks = async () => {
-          if (token) {
-            setLoading(true);
-            try {
-              let allTracks: Track[] = [];
-              let limit = 50;
-              let offset = 0;
-              let fetchMore = true;
-              
-              
-              if (customGame){
-                while (fetchMore) {
-                  const { data } = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                    params: {
-                      limit,
-                      offset,
-                    },
-                  });
-                  allTracks = allTracks.concat(data.items);
-                  offset += limit;
-                  if (data.items.length < limit || allTracks.length >= TRACK_LENGTH) {
-                    fetchMore = false;
-                  }
-                }
-              } else {
-                let maxPlaylistsPerGenre = (TRACK_LENGTH/AVG_TRACKS_IN_PLAYLISTS)/Object.keys(myGenres).length;
-                
-                for (const genre in Object.keys(myGenres)){
-                  let count = 0;
-                  let max = Math.max(Object.keys(myGenres).length, maxPlaylistsPerGenre);
-                  for (const playlistId of myGenres[Object.keys(myGenres)[genre]]) {
-                    if (count == max){
-                      continue;
-                    }
-                    fetchMore = true;
-                    offset = 0;
-                    while (fetchMore) {
-                      try {
-                          const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-                              headers: {
-                                  Authorization: `Bearer ${token}`,
-                              },
-                              params: {
-                                  limit,
-                                  offset,
-                              },
-                          });
-
-                          const tracks = data.items.map((item:any) => item.track).filter((track:any) => track !== null);
-                          offset += limit;
-
-                          if (data.items.length === 0 || allTracks.length >= TRACK_LENGTH) {
-                              fetchMore = false;
-                          } else{
-                            allTracks = allTracks.concat(tracks);
-                          }
-                      } catch (error) {
-                          console.error('Error fetching playlist tracks:', error);
-                          fetchMore = false; // Stop fetching if an error occurs
-                      }
-                    }
-                    count++;
-                  }
+      console.log(myGenres)
+      const fetchTopTracks = async () => {
+        if (token) {
+          setLoading(true);
+          try {
+            let allTracks: Track[] = [];
+            let limit = 50;
+            let offset = 0;
+            let fetchMore = true;
+            
+            
+            if (customGame){
+              while (fetchMore) {
+                const { data } = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                  params: {
+                    limit,
+                    offset,
+                  },
+                });
+                allTracks = allTracks.concat(data.items);
+                offset += limit;
+                if (data.items.length < limit || allTracks.length >= TRACK_LENGTH) {
+                  fetchMore = false;
                 }
               }
-              
-              setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
-            } catch (error) {
-              console.error('Error fetching top tracks:', error);
-            } finally {
-              setLoading(false);
+            } else {
+              let maxPlaylistsPerGenre = Math.floor((TRACK_LENGTH/AVG_TRACKS_IN_PLAYLISTS)/myGenres.length);
+              for (const genre in myGenres){
+                let count = 0;
+                let max = Math.min(genres[myGenres[genre]].length, maxPlaylistsPerGenre);
+                console.log(myGenres[genre])
+                console.log(max)
+                
+                for (const playlistId of genres[myGenres[genre]]) {
+                  if (count == max){
+                    console.log(count)
+                    continue;
+                  }
+                  fetchMore = true;
+                  offset = 0;
+                  while (fetchMore) {
+                    try {
+                        const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                            params: {
+                                limit,
+                                offset,
+                            },
+                        });
+    
+                        const tracks = data.items.map((item:any) => item.track).filter((track:any) => track !== null);
+                        offset += limit;
+                        if (data.items.length === 0 || allTracks.length >= TRACK_LENGTH) {
+                            fetchMore = false;
+                        } else{
+                          allTracks = allTracks.concat(tracks);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching playlist tracks:', error);
+                        fetchMore = false; // Stop fetching if an error occurs
+                    }
+                  }
+                  count++;
+                }
+              }
             }
+            
+            setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
+          } catch (error) {
+            console.error('Error fetching top tracks:', error);
+          } finally {
+            setLoading(false);
           }
-        };
+        }
+      };
         fetchTopTracks();
-      }, [token, customGame, myGenres]);
+      }, [token, customGame, genreMenuOpen]);
 
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
@@ -411,12 +406,6 @@ function Home() {
         setIsModalVisible(false);
         setSongGuesses([]);
     };
-
-    // GENRE MODAL
-    useEffect(() => {
-      if (genrePopover){
-      }
-    }, [genrePopover]);
     
 
     return (
@@ -445,7 +434,15 @@ function Home() {
                                     <Answer color={guessObj.correct ? "#1DB954" : "red"} song={guessObj.guess} />
                                 </div>
                               ))}
-                              <Form onSubmit={handleSubmit} displayData={displayData} />
+                              <Form 
+                                onSubmit={handleSubmit} 
+                                displayData={displayData}
+                                allGenres = {allGenres}
+                                setSelectedGenres = {setMyGenres}
+                                myGenres = {myGenres}
+                                setGenreMenuOpen = {setGenreMenuOpen}
+                                genreMenuOpen = {genreMenuOpen}
+                                />
                               {!gameActive && (
                                 <button className="bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 mr-[32px]" onClick={selectRandomTrack}>
                                     <RxShuffle size={30} />
