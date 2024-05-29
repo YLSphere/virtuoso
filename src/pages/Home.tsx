@@ -113,7 +113,7 @@ function Home() {
                 '37i9dQZF1DX3rxVfibe1L0', // Mood Booster
                 '37i9dQZF1DX5Vy6DFOcx00', // big on the internet
                 '37i9dQZF1DX2L0iB23Enbq', // Viral Hits
-                '37i9dQZF1DX7rOY2tZUw1k', // Timeless Love Songs
+                // '37i9dQZF1DX7rOY2tZUw1k', // Timeless Love Songs
                 '37i9dQZF1DX0018ciYu6bM', // KimBops!
                 '37i9dQZF1DWTl4y3vgJOXW' // Locked In
             ];
@@ -224,6 +224,7 @@ function Home() {
         if (topTracks.length > 0) {
             const randomIndex = Math.floor(Math.random() * topTracks.length);
             const selectedTrack = topTracks[randomIndex];
+            console.log(selectedTrack.name);
             setRandomTrack(selectedTrack);
             setAnswerIndex(randomIndex);
             setCorrect(false)
@@ -359,10 +360,10 @@ function Home() {
           ) : (
               <div className="flex-1 relative unblur">
                   <div className="absolute top-0 left-0 w-full h-full z-0 inset-0">
-                      <div className="particle "></div>
-                      <div className="particle"></div>
-                      <div className="particle"></div>
-                      <div className="particle"></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
                   </div>
                   <Navbar 
                     customGame={customGame} setCustomGame={setCustomGame} streak = {streak}

@@ -6,7 +6,7 @@
   }
   
   .counter-animation {
-    animation: streakAnimation 0.5s infinite alternate;
+    animation: streakAnimation infinite alternate;
   }
   
   @keyframes streakAnimation {

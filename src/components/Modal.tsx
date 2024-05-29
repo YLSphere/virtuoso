@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import "../css/Confetti.css"
 import '../css/Modal.css';
+import Confetti from "../components/Confetti"
 
 interface Track {
     id: string;
@@ -20,12 +22,14 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isCorrect, isVisible, onClose, track }) => {
-  if (!isVisible || !track) {
-    return null;
-  }
-  
+        
+    if (!isVisible || !track) {
+        return null;
+    }
+    
   return (
     <div className="modal-overlay" onClick={onClose}>
+        {isCorrect && <Confetti />}
       <div className={`modal-content ${isCorrect ? 'modal-correct' : 'modal-incorrect'}`} onClick={(e) => e.stopPropagation()}>
         <h2 className = 'display-text font-bold mt-4 text-[20px]'>{track.name}</h2>
         <p className = 'display-text'>{track.artists.map((artist: any) => artist.name).join(', ')}</p>
