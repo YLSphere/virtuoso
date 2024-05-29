@@ -14,6 +14,7 @@ import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
+import {CheckboxGroup, Checkbox} from "@nextui-org/react";
 
 
 type StringDictionary = { [key: string]: string[] };
@@ -445,9 +446,11 @@ function Home() {
                                 />
                               {!gameActive && (
                                 <button className="bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 mr-[32px]" onClick={selectRandomTrack}>
-                                    <RxShuffle size={30} />
+                                    <RxShuffle size={30} className = 'mr-[5px]'/>
                                 </button>
                               )}
+
+
                               {randomTrack && (
                               <div>
                                   {randomTrack.preview_url && gameActive ? (
