@@ -124,11 +124,9 @@ function Home() {
         '80s90s':[],
       }
     );
-    const [allGenres, setAllGenres] = useState<string[]>(Object.keys(genres));
-    const [myGenres, setMyGenres] = useState<string[]>(allGenres);
+    const [myGenres, setMyGenres] = useState<string[]>(Object.keys(genres));
     
-    
-    
+
 
   useEffect(() => {
       const hash = window.location.hash;
@@ -438,7 +436,6 @@ function Home() {
                               <Form 
                                 onSubmit={handleSubmit} 
                                 displayData={displayData}
-                                allGenres = {allGenres}
                                 setSelectedGenres = {setMyGenres}
                                 myGenres = {myGenres}
                                 setGenreMenuOpen = {setGenreMenuOpen}

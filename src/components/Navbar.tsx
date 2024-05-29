@@ -7,6 +7,8 @@ import axios from 'axios';
 import { FaSpotify } from "react-icons/fa";
 import { IoMdTrendingUp } from "react-icons/io";
 
+import {Button, Tooltip} from "@nextui-org/react";
+
 interface UserProfile {
   display_name: string;
   images: { url: string }[];
@@ -67,7 +69,12 @@ function Navbar(props: NavbarProps) {
           </li>
           <li className="navbar-item">
             <div className="toggle-container">
-              <span className="toggle-label">{props.customGame ? <FaSpotify size = {25} style = {{color: "#40b86a"}}/> : <IoMdTrendingUp size = {25} style = {{color: "#d8d649"}}/>}</span>
+              <span className="toggle-label">{props.customGame ? (
+                <FaSpotify size = {25} style = {{color: "#40b86a"}}/> 
+              ) : (
+                <IoMdTrendingUp size = {25} style = {{color: "#d8d649"}}/> 
+            )}
+              </span>
               <label className="switch">
                 <input type="checkbox" checked={props.customGame} onChange={handleChange} />
                 <span className="slider round"></span>

@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
-import {Popover, PopoverTrigger, PopoverContent, Button} from "@nextui-org/react";
+import {Popover, PopoverTrigger, PopoverContent, Button, Tooltip, CheckboxGroup, Checkbox} from "@nextui-org/react";
 import { SlMenu } from "react-icons/sl";
-import {CheckboxGroup, Checkbox} from "@nextui-org/react";
-// import {CheckboxGroup, Checkbox} from "@nextui-org/checkbox";
-// import {Popover, PopoverTrigger, PopoverContent} from "@nextui-org/popover";
-// import {Button, ButtonGroup} from "@nextui-org/button";
 
 
 export default function GenrePopover({
-    allGenres,
     setSelectedGenres,
     myGenres,
     setGenreMenuOpen,
     genreMenuOpen
 }:{
-    allGenres:string[];
     setSelectedGenres: any;
     myGenres: string[];
     setGenreMenuOpen:any;
@@ -39,11 +33,13 @@ export default function GenrePopover({
 
   return (
     
-    <Popover placement="right" backdrop = 'opaque' onClose = {handleClose}> 
+    <Popover placement="right" backdrop = 'opaque' onClose = {handleClose} shadow = 'sm'> 
       <PopoverTrigger>
-        <Button isIconOnly className = 'bg-transparent text-white focus:outline-none active:outline-none ' >
-            <SlMenu size = {30} className = 'mb-[5px] ml-[5px]'/>
-        </Button>
+        {/* <Tooltip color="success" closeDelay={500} content="change genres" size = 'lg'> */}
+          <Button isIconOnly className = 'bg-transparent text-white focus:outline-none active:outline-none ' >
+              <SlMenu size = {30} className = 'mb-[5px] ml-[5px]'/>
+          </Button>
+        {/* </Tooltip> */}
       </PopoverTrigger>
       <PopoverContent>
         <CheckboxGroup
@@ -52,6 +48,7 @@ export default function GenrePopover({
           onValueChange = {handleCheckboxes}
           color = "success"
           className = 'p-2'
+          autoFocus
         >
           <div className = 'flex flex-row justify-between'>
             <div className = 'flex flex-col'>

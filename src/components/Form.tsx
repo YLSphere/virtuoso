@@ -14,14 +14,13 @@ interface DisplayData {
 interface FormProps {
   onSubmit: (value: string) => void;
   displayData: DisplayData[];
-  allGenres:string[];
   setSelectedGenres: any;
   myGenres: string[];
   setGenreMenuOpen: any;
   genreMenuOpen: boolean;
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit, displayData, allGenres, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen}) => {
+const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen}) => {
   const [songGuess, setSongGuess] = useState('');
   const [suggestions, setSuggestions] = useState<DisplayData[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
@@ -111,12 +110,12 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, allGenres, setSelect
           />
           <button type="submit" className='submit-button'>submit</button>
         </div>
-        <div><GenrePopover 
-          allGenres = {allGenres} 
-          setSelectedGenres = {setSelectedGenres} 
-          myGenres = {myGenres} 
-          setGenreMenuOpen = {setGenreMenuOpen}
-          genreMenuOpen = {genreMenuOpen}
+        <div>
+          <GenrePopover 
+            setSelectedGenres = {setSelectedGenres} 
+            myGenres = {myGenres} 
+            setGenreMenuOpen = {setGenreMenuOpen}
+            genreMenuOpen = {genreMenuOpen}
           />
         </div>
         
