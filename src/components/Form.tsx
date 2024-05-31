@@ -18,14 +18,16 @@ interface FormProps {
   myGenres: string[];
   setGenreMenuOpen: any;
   genreMenuOpen: boolean;
+  customGame: boolean;
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen}) => {
+const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen, customGame}) => {
   const [songGuess, setSongGuess] = useState('');
   const [suggestions, setSuggestions] = useState<DisplayData[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const suggestionsRef = useRef<HTMLUListElement | null>(null);
   const [suggestionsHeight, setSuggestionsHeight] = useState(0);
+
 
   useEffect(() => {
     if (suggestionsRef.current) {
@@ -87,7 +89,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
   return (
     <form onSubmit={handleSubmit} className='form'>
       {suggestions.length > 0 && (
-        <ul className="suggestions" ref={suggestionsRef} style={{ marginBottom: suggestionsHeight + 100 }}>
+        <ul className={`suggestions ${customGame ? "" : "mr-[40px]"}`} ref={suggestionsRef} style={{ marginBottom: suggestionsHeight + 100 }}>
           {suggestions.map(track => (
             <li key={track.index} onClick={() => handleSuggestionClick(track)}>
               {track.wholeName}
@@ -110,14 +112,15 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
           />
           <button type="submit" className='submit-button'>submit</button>
         </div>
-        <div>
+        {!customGame && 
+        <div >
           <GenrePopover 
             setSelectedGenres = {setSelectedGenres} 
             myGenres = {myGenres} 
             setGenreMenuOpen = {setGenreMenuOpen}
             genreMenuOpen = {genreMenuOpen}
           />
-        </div>
+        </div>}
         
       </div>
       

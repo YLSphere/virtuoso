@@ -14,7 +14,7 @@ import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
-import {CheckboxGroup, Checkbox} from "@nextui-org/react";
+import {Button, Tooltip} from "@nextui-org/react";
 
 
 type StringDictionary = { [key: string]: string[] };
@@ -81,7 +81,8 @@ function Home() {
           '37i9dQZF1DX5Vy6DFOcx00', // big on the internet
           '37i9dQZF1DWYBO1MoTDhZI', // Good Vibes
           '37i9dQZF1DX2L0iB23Enbq', // Viral Hits
-          '37i9dQZF1DWUa8ZRTfalHk' // Pop Rising
+          '37i9dQZF1DWUa8ZRTfalHk', // Pop Rising
+          '37i9dQZF1DX3rxVfibe1L0' // Mood Booster
   
         ],
         "00s_pop":[
@@ -92,7 +93,8 @@ function Home() {
           '6oPaWRFxVztzwMpaZTmusU', // Throwback songs everyone knows
           '5r3dfWzTXMfiiO9rmzUCP9', // Throwback Hits (1990-2010)
           '6zGbgDCvY2ph9e80EqTKVd', // Noughties 00s Throwback Y2K
-          '37i9dQZF1DX7F6T2n2fegs' // Throwback Party *
+          '37i9dQZF1DX7F6T2n2fegs', // Throwback Party *
+          '37i9dQZF1DWUZMtnnlvJ9p' // The Ultimate Hit Mix
   
         ],
         'alternative':[
@@ -102,7 +104,7 @@ function Home() {
           '37i9dQZF1DWVsh2vXzlKFb', // Summer Indie *
           '37i9dQZF1DX4OzrY981I1W', // my life is a movie *
           '37i9dQZF1DXb9izPIc0SCS', // Indie Rock Hits
-          '37i9dQZF1DWVV27DiNWxk' // Sad Indie
+          '37i9dQZF1DWURugcFfOfEH' // good energy *
   
         ],
         'rock':[],
@@ -114,19 +116,54 @@ function Home() {
           '37i9dQZF1DX4RDXswvP6Mj', // K-Club Party *
           '37i9dQZF1DXdR77H5Z8MIM', // Nolja!
           '37i9dQZF1DWUoY6Ih7vsxr', // Millennium K-Pop *
-          '37i9dQZF1DX3ZeFHRhhi7Y', // WOR K OUT *
+          '37i9dQZF1DX3ZeFHRhhi7Y' // WOR K OUT *
   
         ],
-        'krnb':[],
-        'cantopop':[],
+        'krnb':[
+          '37i9dQZF1DWW46Vfs1oltB', // KrOWN
+          '37i9dQZF1DXdTb8AG95jne', // Indie Korea *
+          '37i9dQZF1DXbirtHQBuwCo', // TrenChill K-R&B *
+          '37i9dQZF1DWWvmOXYvR5a6', // TrenChill K-Hip Hop *
+          '37i9dQZF1DX5x5ck36i2uO', // JJM Hip Hop *
+          '37i9dQZF1DWZiWafrEIdA8', // Healing Hip Hop *
+          '6PVRGjcds83S5rEx80bp2T', // krnb late night drive
+          '45GF9sxHg15RuNUANcuUqQ' // soft krnb
+
+        ],
+        'cantopop':[
+          '37i9dQZF1DWY8uwfoLg221', // 2000ND LHJS *
+          '37i9dQZF1DX9s7H7lpM6Rx', // 2010ND GGJS *
+          '37i9dQZF1DXcklpCH5705e', // FCG
+          '2v0mxzm6LCcmBVqRPwzvdM', // JHTYYGDGK Best Cantonese Songs'
+          '12rjCFxeO1DFy2XSpg9AK4' // Cantopop Classics (90s and 00s)
+
+        ],
         'mandopop':[],
-        'hiphop':[],
-        '80s90s':[],
+        'rnb':[
+          '37i9dQZF1DX4SBhb3fqCJd', // RNB X
+          '37i9dQZF1DWTUHzPOW6Jl7', // Energy Booster: R&B *
+          '37i9dQZF1DX7FY5ma9162x', // R&B Favourites *
+          '5UFZXhJk7w4joCfg6jS0GV' // R&B/Chill
+        ],
+        'hiphop':[
+          '37i9dQZF1DWTl4y3vgJOXW', // Locked in
+          '37i9dQZF1DX0XUsuxWHRQd', // Rap Caviar
+          '16C7Tj4i9E3hNzhTaOdu3D' // Fire
+        ],
+        '80s90s':[
+          '4A8pN5orMQBh72D19n1xDb', // 80s & 90s hits
+          '22a3X6TAY3qEs60PhcdLTn' // My old man playlist
+        ],
+        'edm':[
+          '37i9dQZF1DX3Kdv0IChEm9', // EDM Hits
+          '37i9dQZF1DZ06evO1RBsv6', // This is Porter Robinson
+          '0kGQnVyzW8LBi7vswuQ18Y'
+        ]
       }
     );
-    const [myGenres, setMyGenres] = useState<string[]>(Object.keys(genres));
+    const [myGenres, setMyGenres] = useState<string[]>([]);
     
-
+      const inputRef = useRef(null);
 
   useEffect(() => {
       const hash = window.location.hash;
@@ -147,7 +184,7 @@ function Home() {
 
   // API FETCH TOP TRACKS
     useEffect(() => {
-      console.log(myGenres)
+      // console.log(myGenres)
       const fetchTopTracks = async () => {
         if (token) {
           setLoading(true);
@@ -176,45 +213,46 @@ function Home() {
                 }
               }
             } else {
-              let maxPlaylistsPerGenre = Math.floor((TRACK_LENGTH/AVG_TRACKS_IN_PLAYLISTS)/myGenres.length);
-              for (const genre in myGenres){
-                let count = 0;
-                let max = Math.min(genres[myGenres[genre]].length, maxPlaylistsPerGenre);
-                console.log(myGenres[genre])
-                console.log(max)
-                
+              let maxSongsPerGenre = Math.floor(TRACK_LENGTH/myGenres.length)
+
+
+              for (const genre in myGenres){       
                 for (const playlistId of genres[myGenres[genre]]) {
-                  if (count == max){
-                    console.log(count)
+                  if (allTracks.length >= ((parseInt(genre) + 1)*maxSongsPerGenre)){
+                    
                     continue;
                   }
                   fetchMore = true;
                   offset = 0;
+
+
                   while (fetchMore) {
                     try {
-                        const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                            params: {
-                                limit,
-                                offset,
-                            },
-                        });
-    
-                        const tracks = data.items.map((item:any) => item.track).filter((track:any) => track !== null);
-                        offset += limit;
-                        if (data.items.length === 0 || allTracks.length >= TRACK_LENGTH) {
-                            fetchMore = false;
-                        } else{
-                          allTracks = allTracks.concat(tracks);
-                        }
+                      const { data } = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                        params: {
+                          limit,
+                          offset,
+                        },
+                      });
+                  
+                      const tracks = data.items.map((item:any) => item.track).filter((track:any) => track !== null);
+                      offset += limit;
+
+                      if (data.items.length === 0 || allTracks.length >= ((parseInt(genre) + 1)*maxSongsPerGenre)) {
+                        fetchMore = false;
+                      } else{
+                        allTracks = allTracks.concat(tracks);
+                      }
+                      
                     } catch (error) {
                         console.error('Error fetching playlist tracks:', error);
                         fetchMore = false; // Stop fetching if an error occurs
                     }
                   }
-                  count++;
+                  console.log(allTracks.length)
                 }
               }
             }
@@ -429,7 +467,7 @@ function Home() {
                           <div className = 'item-start flex flex-row'>
                             <div className = 'flex items-center flex-col'>
                               {songGuesses.map((guessObj, index) => (
-                                <div className = 'flex justify-start mr-[62px]' key={index}>
+                                <div className = {`flex justify-start ${customGame ? "" : "mr-[39px]"}`} key={index}>
                                     <Answer color={guessObj.correct ? "#1DB954" : "red"} song={guessObj.guess} />
                                 </div>
                               ))}
@@ -440,18 +478,23 @@ function Home() {
                                 myGenres = {myGenres}
                                 setGenreMenuOpen = {setGenreMenuOpen}
                                 genreMenuOpen = {genreMenuOpen}
+                                customGame = {customGame}
                                 />
                               {!gameActive && (
-                                <button className="bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 mr-[32px]" onClick={selectRandomTrack}>
-                                    <RxShuffle size={30} className = 'mr-[5px]'/>
-                                </button>
+                                <Tooltip color="success" placement='bottom' closeDelay={0} content="new song" size = 'lg'>
+                                  <Button className={`bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 ${customGame ? "" : "mr-[36px]"}`}
+                                  onClick={selectRandomTrack}>
+                                      <RxShuffle size={30}/>
+                                  </Button>
+                                </Tooltip>
+
                               )}
 
 
                               {randomTrack && (
                               <div>
                                   {randomTrack.preview_url && gameActive ? (
-                                      <div className='audio-component'>
+                                      <div className={`audio-component ${customGame ? "" : "mr-[50px]"}`}>
                                           <audio
                                               ref={audioRef}
                                               src={randomTrack.preview_url}
@@ -506,6 +549,7 @@ function Home() {
                   </div>
               </div>
           )}
+          
           <Modal
               isVisible={isModalVisible}
               onClose={closeModal}

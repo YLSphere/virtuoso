@@ -44,7 +44,6 @@
     border: 1px solid #ccc;
     max-height: 200px; /* Adjust the height as needed */
     overflow-y: auto;
-    margin-right: 40px;
     padding: 0;
     list-style: none;
     position: absolute;
