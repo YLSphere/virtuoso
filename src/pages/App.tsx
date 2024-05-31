@@ -11,6 +11,17 @@ import Home from './Home';
 
 const spotifyApi = new SpotifyWebApi();
 
+interface Track {
+  id: string;
+  name: string;
+  album: {
+    name: string
+    images: { url: string }[];
+  };
+  artists: { name: string }[];
+  preview_url: string;
+}
+
 function App() {
   const { token, setToken } = useSpotifyToken();
 
@@ -21,6 +32,9 @@ function App() {
   const [users, setUsers] = useState<any[]>([]);
   const [customGame, setCustomGame] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
+  const [myGenres, setMyGenres] = useState<string[]>([]);
+  const [topTracks, setTopTracks] = useState<Track[]>([]);
+  
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -60,6 +74,10 @@ function App() {
                     setCustomGame={setCustomGame}
                     streak = {streak}
                     setStreak = {setStreak}
+                    myGenres = {myGenres}
+                    setMyGenres = {setMyGenres}
+                    topTracks = {topTracks}
+                    setTopTracks = {setTopTracks}
                   />}/>
                 <Route path= '/leaderboard'
                 element={<Leaderboard  

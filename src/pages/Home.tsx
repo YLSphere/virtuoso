@@ -69,6 +69,10 @@ interface HomeProps{
   setCustomGame:any;
   streak:number;
   setStreak:any;
+  myGenres: string[];
+  setMyGenres: any;
+  topTracks: Track[];
+  setTopTracks: any;
 }
 
 const firebaseConfig = {
@@ -103,11 +107,9 @@ function Home(props: HomeProps) {
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [firstPlay, setfirstPlay] = useState<boolean>(true);
     
-
-    
     const [totalTime, setTotalTime] = useState<number>(0);
 
-    const [topTracks, setTopTracks] = useState<Track[]>([]);
+    
     const [displayData, setDisplayData] = useState<DisplayData[]>([]);
     
     
@@ -211,7 +213,7 @@ function Home(props: HomeProps) {
         ]
       }
     );
-    const [myGenres, setMyGenres] = useState<string[]>([]);
+    
     
 
     
@@ -247,11 +249,11 @@ function Home(props: HomeProps) {
                 }
               }
             } else {
-              let maxSongsPerGenre = Math.floor(TRACK_LENGTH/myGenres.length)
+              let maxSongsPerGenre = Math.floor(TRACK_LENGTH/props.myGenres.length)
 
 
-              for (const genre in myGenres){       
-                for (const playlistId of genres[myGenres[genre]]) {
+              for (const genre in props.myGenres){       
+                for (const playlistId of genres[props.myGenres[genre]]) {
                   if (allTracks.length >= ((parseInt(genre) + 1)*maxSongsPerGenre)){
                     
                     continue;
@@ -291,7 +293,7 @@ function Home(props: HomeProps) {
               }
             }
             
-            setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
+            props.setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
           } catch (error) {
             console.error('Error fetching top tracks:', error);
           } finally {
@@ -301,12 +303,12 @@ function Home(props: HomeProps) {
         }
       };
         fetchTopTracks();
-      }, [token, props.customGame, genreMenuOpen]);
+      }, [props.customGame, genreMenuOpen]);
 
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
-        if (topTracks.length > 0) {
-          const list = topTracks.map((track, index) => ({
+        if (props.topTracks.length > 0) {
+          const list = props.topTracks.map((track, index) => ({
             artist: track.artists.map(artist => artist.name).join(', '),
             name: track.name,
             index: index + 1,
@@ -314,7 +316,7 @@ function Home(props: HomeProps) {
           }));
           setDisplayData(list);
         }
-      }, [topTracks]);
+      }, [props.topTracks]);
     
 
     //    ENDING GAME
@@ -356,9 +358,9 @@ function Home(props: HomeProps) {
       
         setTries(0)
         setSongGuesses([])
-        if (topTracks.length > 0) {
-            const randomIndex = Math.floor(Math.random() * topTracks.length);
-            const selectedTrack = topTracks[randomIndex];
+        if (props.topTracks.length > 0) {
+            const randomIndex = Math.floor(Math.random() * props.topTracks.length);
+            const selectedTrack = props.topTracks[randomIndex];
             console.log(selectedTrack.name);
             setRandomTrack(selectedTrack);
             setAnswerIndex(randomIndex);
@@ -382,7 +384,7 @@ function Home(props: HomeProps) {
         }
       }, [audioRef.current]);
       
-    // AUDIO TIM UPDATES
+    // AUDIO TIME UPDATES
     const handleTimeUpdate = () => {
         if (audioRef.current) {
             setCurrentTime(audioRef.current.currentTime);
@@ -424,7 +426,7 @@ function Home(props: HomeProps) {
             } else {
                 const maxIntervalIndex = Math.min(tries, intervals.length - 1);
                 const maxTime = intervals[maxIntervalIndex];
-                setTotalTime(totalTime + maxTime);
+                
     
                 if (!firstPlay) {
                     audioRef.current.currentTime = 0;
@@ -440,6 +442,7 @@ function Home(props: HomeProps) {
                         if (currentTime > maxTime) {
                             audioRef.current.pause();
                             setIsPlaying(false);
+                            setTotalTime(totalTime + currentTime);
                         } else {
                             requestAnimationFrame(checkTime);
                         }
@@ -585,8 +588,8 @@ function Home(props: HomeProps) {
                               <Form 
                                 onSubmit={handleSubmit} 
                                 displayData={displayData}
-                                setSelectedGenres = {setMyGenres}
-                                myGenres = {myGenres}
+                                setSelectedGenres = {props.setMyGenres}
+                                myGenres = {props.myGenres}
                                 setGenreMenuOpen = {setGenreMenuOpen}
                                 genreMenuOpen = {genreMenuOpen}
                                 customGame = {props.customGame}

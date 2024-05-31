@@ -21,9 +21,10 @@
   }
 
   .counter-container{
-    margin-right:55vw;
+    /* margin-right:55vw; */
     position: absolute;
-    margin-bottom:50vh;
+    padding: 0; 
+    /* margin-bottom:50vh; */
     gap: 5px;
     justify-content: flex;
     flex-direction: row;

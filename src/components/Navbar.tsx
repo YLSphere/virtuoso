@@ -66,7 +66,7 @@ function Navbar(props: NavbarProps) {
 
   return (
     <nav className="navbar">
-      <div className="navbar-container">
+      <div className="navbar-container align-middle my-0 p-0">
         <div className="navbar-logo" onClick={handleProfileClick}>
           {userProfile && (
             <div className="navbar-profile" onClick={handleProfileClick}>
@@ -79,28 +79,27 @@ function Navbar(props: NavbarProps) {
             </div>
           )}
         </div>
-        <ul className="navbar-menu">
+        <ul className="align-right justify-end w-full h-[100%] my-0 p-0 flex flex-row space-x-10 items-center">
           <li className="navbar-item" onClick={handleLeaderboardClick}>
             <div className="navbar-link">
               <MdLeaderboard size={25} style={{ color: "#d8d649" }} />
             </div>
           </li>
-          <li className="navbar-item mr-[7vh]">
+          <li className="navbar-item">
             <Streak value={props.streak} />
           </li>
-          <li className="navbar-item">
-            <div className="toggle-container">
+          <li className="">
+            <div className="flex flex-row items-center align-center gap-[9px]">
               <span className="toggle-label">{props.customGame ? (
                 <FaSpotify size = {25} style = {{color: "#40b86a"}}/> 
               ) : (
                 <IoMdTrendingUp size = {25} style = {{color: "#d8d649"}}/> 
             )}
               </span>
-              <label className="switch">
-                <input type="checkbox" checked={props.customGame} onChange={handleChange} />
-                <span className="slider round"></span>
-              </label>
-              
+                <label className="switch">
+                  <input type="checkbox" checked={props.customGame} onChange={handleChange} />
+                  <span className="slider round"></span>
+                </label>
             </div>
           </li>
           <li className="navbar-item" onClick={logout}>

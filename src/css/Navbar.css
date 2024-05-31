@@ -15,7 +15,6 @@
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
   }
   
   .navbar-logo {
@@ -73,9 +72,10 @@
 
   .switch {
     position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
+    /* display: inline-block; */
+    width: 44px;
+    height: 30px;
+
   }
   
   .switch input {
@@ -85,12 +85,9 @@
   }
 
   .slider {
+    margin-top: 7px;
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     background-color: transparent;
     outline-color: #ccc;
     outline-width: 2px;
@@ -137,7 +134,7 @@
     border-radius: 50%;
   }
   
-  .toggle-container {
+  /* .toggle-container {
     display: flex;
     align-items: center;
     
@@ -146,4 +143,4 @@
   .toggle-label {
     margin-right: 10px;
     margin-bottom: 17px;
-  }
+  } */

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -16,7 +16,10 @@ import {
   TableColumn,
   TableRow,
   TableCell, 
-  User
+  User, 
+  Pagination, 
+  PaginationItem, 
+  PaginationCursor
 } from "@nextui-org/react";
 
 import {
@@ -58,13 +61,19 @@ interface LeaderboardProps {
 
 function Leaderboard(props: LeaderboardProps) {
   const columns = ['name', 'highest streak', 'avg. listening time (s)']
-
-
+  const [page, setPage] = useState<number>(1);
+  const rowsPerPage = 5;
   const { token } = useSpotifyToken();
 
   const usersCollectionRef = collection(db, "leaderboard");
 
-  
+  const pages = Math.ceil(props.users.length / rowsPerPage);
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return props.users.slice(start, end);
+  }, [page, props.users]);
 
   
 
@@ -73,10 +82,6 @@ function Leaderboard(props: LeaderboardProps) {
   //   await deleteDoc(userDoc);
   //   getUsers();
   // };
-
-  // useEffect(() => {
-  //   getUsers();
-  // }, []);
 
   return (
     <div>
@@ -94,34 +99,67 @@ function Leaderboard(props: LeaderboardProps) {
       setUserName = {props.setUserName}
       />
   
-      <div className = 'flex justify-center items-center h-screen'>
-        <Table aria-label="leaderboard">
-          <TableHeader>
-            {columns.map((column) =>
-            <TableColumn key={column}>{column}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody emptyContent={"No rows to display."}>
+      <div className = 'flex justify-center items-center h-screen' >
+        <div>
+          <Table 
+            aria-label="leaderboardExample table with client side pagination"
+            bottomContent={
+              <div className="flex w-full justify-center">
+                <Pagination
+                  isCompact
+                  showControls
+                  showShadow
+                  color = 'success'
+                  size = 'sm'
+                  classNames={{
+                    wrapper: "bg-[#303030]",
+                    item: 'bg-[#303030]',
+                    prev: 'bg-[#303030]',
+                    next: 'bg-[#303030]'
 
-            {props.users.sort((a:any,b:any)=>{
-                if (a.max_streak-b.max_streak>1) {return -1;}
-                else if (a.max_streak-b.max_streak<1) {return 1;}
-                else {return 0;}
-              }).slice(0, 10).map((row:any, index:number) =>
-              <TableRow key={index}>
-                <TableCell className="text-[#303030]">
-                <User
-                  avatarProps={{radius: "lg", src: row.spotify_id}}
-                  name={row.name}
-                >
-                </User>
-                </TableCell>
-                <TableCell className="text-[#303030]">{row.max_streak.toString()}</TableCell>
-                <TableCell className="text-[#303030]">{(Math.round(row.avg_time * 100) / 100).toFixed(2).toString()}</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                  }}
+                  // color="primary"
+                  page={page}
+                  total={pages}
+                  onChange={(page) => setPage(page)}
+                />
+              </div>
+            }
+            classNames={{
+              wrapper: "min-h-[222px] bg-black",
+              th: 'bg-[#303030] text-[#ccc]',
+
+            }}
+            
+          >
+            <TableHeader>
+              {columns.map((column) =>
+              <TableColumn key={column}>{column}</TableColumn>
+              )}
+              
+            </TableHeader>
+            <TableBody emptyContent={"no one here :("} key = 'results'>
+
+              {props.users.filter((row: any) => row.max_streak > 0).sort((a:any,b:any)=>{
+                  if (a.max_streak-b.max_streak>1) {return -1;}
+                  else if (a.max_streak-b.max_streak<1) {return 1;}
+                  else { return 0;}
+                }).map((row:any, index:number) => 
+                  <TableRow key={index}>
+                  <TableCell className="text-[#ccc]">
+                  <User
+                    avatarProps={{radius: "lg", src: row.spotify_id}}
+                    name={row.name}
+                  >
+                  </User>
+                  </TableCell>
+                  <TableCell className="text-[#ccc] text-center">{row.max_streak.toString()}</TableCell>
+                  <TableCell className="text-[#ccc] text-center">{(Math.round(row.avg_time * 100) / 100).toFixed(2).toString()}</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
         
       </div>
     </div>
