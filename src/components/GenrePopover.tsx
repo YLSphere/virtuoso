@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {Popover, PopoverTrigger, PopoverContent, Button, Tooltip, CheckboxGroup, Checkbox} from "@nextui-org/react";
-import { SlMenu } from "react-icons/sl";
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure} from "@nextui-org/react";
+import { TbFilter } from "react-icons/tb";
 
 export default function GenrePopover({
     setSelectedGenres,
@@ -51,7 +50,7 @@ export default function GenrePopover({
       <PopoverTrigger>
         {/* <Tooltip color="success" closeDelay={500} content="change genres" size = 'lg'> */}
           <Button isIconOnly className = 'bg-transparent text-white focus:outline-none active:outline-none ' >
-              <SlMenu size = {30} className = 'p-[5px]'/>
+              <TbFilter size = {25}/>
           </Button>
         {/* </Tooltip> */}
       </PopoverTrigger>

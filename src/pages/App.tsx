@@ -1,32 +1,34 @@
 import { useState, useEffect} from 'react'
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
+
 import SpotifyAuth from '../components/SpotifyAuth';
 import SpotifyWebApi from 'spotify-web-api-js';
+import { useSpotifyToken } from '../components/SpotifyToken';
 
 import '../css/App.css';
-import Virtuoso from './Virtuoso';
+import Leaderboard from './Leaderboard';
 import Home from './Home';
 
 const spotifyApi = new SpotifyWebApi();
 
 function App() {
-  const [token, setToken] = useState<string | null>(null);
+  const { token, setToken } = useSpotifyToken();
+
+  const [spotifyId, setSpotifyId] = useState<string>("");
+  const [maxStreak, setMaxStreak] = useState<number>(0);
+  const [avgTime, setAvgTime] = useState<number>(0);
+  const [userName, setUserName] = useState<string>("");
+  const [users, setUsers] = useState<any[]>([]);
+  const [customGame, setCustomGame] = useState<boolean>(false);
+  const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
     const hash = window.location.hash;
-    let token = window.localStorage.getItem("token");
-
-    if (!token && hash) {
-      token = new URLSearchParams(hash.replace('#', '?')).get('access_token');
-      if (token) {
-        window.localStorage.setItem("token", token);
-        setToken(token);
-        window.location.hash = '';
-      }
-    } else {
-      setToken(token);
+    const accessToken = new URLSearchParams(hash.replace('#', '?')).get('access_token');
+    if (accessToken) {
+      setToken(accessToken);
     }
-  }, []);
+  }, [setToken]);
 
   useEffect(() => {
     if (token) {
@@ -43,8 +45,31 @@ function App() {
           <Router>
             <div>
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/virtuoso" element={<Virtuoso />} />
+                <Route path="/" element={<Home 
+                    spotifyId = {spotifyId} 
+                    maxStreak={maxStreak} 
+                    avgTime={avgTime}
+                    setSpotifyId = {setSpotifyId}
+                    setMaxStreak={setMaxStreak}
+                    setAvgTime={setAvgTime}
+                    userName = {userName}
+                    setUserName={setUserName}
+                    users = {users}
+                    setUsers = {setUsers}
+                    customGame = {customGame}
+                    setCustomGame={setCustomGame}
+                    streak = {streak}
+                    setStreak = {setStreak}
+                  />}/>
+                <Route path= '/leaderboard'
+                element={<Leaderboard  
+                  users = {users}
+                  customGame = {customGame}
+                  streak = {streak}
+                  setSpotifyId = {setSpotifyId}
+                  setUserName = {setUserName}
+                  setCustomGame = {setCustomGame}
+                />} />
               </Routes>
             </div>
           </Router>

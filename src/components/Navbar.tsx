@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import '../css/Navbar.css';
 import Streak from '../components/Streak';
-import { MdOutlineLogout } from "react-icons/md";
-import { TbFilter } from "react-icons/tb";
+import { useSpotifyToken } from '../components/SpotifyToken';
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
+
 import { FaSpotify } from "react-icons/fa";
 import { IoMdTrendingUp } from "react-icons/io";
+import { MdLeaderboard } from "react-icons/md";
+import { MdOutlineLogout } from "react-icons/md";
 
 import {Button, Tooltip} from "@nextui-org/react";
 
@@ -18,21 +22,26 @@ interface NavbarProps {
   customGame: boolean;
   setCustomGame: React.Dispatch<React.SetStateAction<boolean>>;
   streak: number;
+  setSpotifyId: any
+  setUserName: any
 }
 
 function Navbar(props: NavbarProps) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const {token} = useSpotifyToken();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token = window.localStorage.getItem("token");
         const response = await axios.get<UserProfile>("https://api.spotify.com/v1/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         setUserProfile(response.data);
+        props.setSpotifyId(response.data.images[0]?.url);
+        props.setUserName(response.data.display_name);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -40,6 +49,13 @@ function Navbar(props: NavbarProps) {
 
     fetchUserProfile();
   }, []);
+
+  const handleLeaderboardClick = () => {
+    navigate('/leaderboard');
+  };
+  const handleProfileClick = () => {
+    navigate('/');
+  };
 
   const logout = () => {
     window.localStorage.removeItem("token");
@@ -51,19 +67,24 @@ function Navbar(props: NavbarProps) {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <a href="/" className="navbar-logo">
+        <div className="navbar-logo" onClick={handleProfileClick}>
           {userProfile && (
-            <div className="navbar-profile">
+            <div className="navbar-profile" onClick={handleProfileClick}>
               <img
                 src={userProfile.images[0]?.url}
                 alt={userProfile.display_name}
                 className="navbar-profile-image"
               />
-              <span className="navbar-profile-name">{userProfile.display_name}</span>
+              <span className="navbar-profile-name" onClick={handleProfileClick}>{userProfile.display_name}</span>
             </div>
           )}
-        </a>
+        </div>
         <ul className="navbar-menu">
+          <li className="navbar-item" onClick={handleLeaderboardClick}>
+            <div className="navbar-link">
+              <MdLeaderboard size={25} style={{ color: "#d8d649" }} />
+            </div>
+          </li>
           <li className="navbar-item mr-[7vh]">
             <Streak value={props.streak} />
           </li>

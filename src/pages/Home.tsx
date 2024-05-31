@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { useSpotifyToken } from '../components/SpotifyToken';
 
 import "../css/Home.css"
 import "../css/App.css"
@@ -14,7 +15,20 @@ import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
-import {Button, Tooltip} from "@nextui-org/react";
+import {Button, Tooltip, user} from "@nextui-org/react";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+  doc,
+} from "firebase/firestore";
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 
 
 type StringDictionary = { [key: string]: string[] };
@@ -39,13 +53,48 @@ interface DisplayData {
 let intervals = [0.2, 1, 2, 4, 8, 15, 30];
 let MAX_TRIES = 6;
 let TRACK_LENGTH = 1000;
-let AVG_TRACKS_IN_PLAYLISTS = 50;
+
+interface HomeProps{
+  spotifyId: string;
+  maxStreak: number;
+  avgTime: number;
+  userName: string;
+  setSpotifyId: any;
+  setMaxStreak: any;
+  setAvgTime: any;
+  setUserName: any;
+  users: any;
+  setUsers: any;
+  customGame:any;
+  setCustomGame:any;
+  streak:number;
+  setStreak:any;
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCbTNQ1koqlrPoO3iHRb6DDF9ovlht6mwg",
+  authDomain: "virtuoso-spotify.firebaseapp.com",
+  projectId: "virtuoso-spotify",
+  storageBucket: "virtuoso-spotify.appspot.com",
+  messagingSenderId: "1087992385904",
+  appId: "1:1087992385904:web:da34af8c29840581cdffb5",
+  measurementId: "G-Z3JHG6VTV8"
+};
 
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
-function Home() {
 
-    const [token, setToken] = useState<string | null>(null);
+function Home(props: HomeProps) {
+
+    const { token, setToken } = useSpotifyToken();
+    
+    const [userImages, setUserImages] = useState<string[]>([]);
+    const usersCollectionRef = collection(db, "leaderboard");
+
     const [loading, setLoading] = useState<boolean>(false);
     const [correct, setCorrect] = useState<boolean>(false);
     const [tries, setTries] = useState<number>(0);
@@ -53,10 +102,11 @@ function Home() {
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [firstPlay, setfirstPlay] = useState<boolean>(true);
-    const [customGame, setCustomGame] = useState<boolean>(false);
-    const [streak, setStreak] = useState<number>(0);
     
+
     
+    const [totalTime, setTotalTime] = useState<number>(0);
+
     const [topTracks, setTopTracks] = useState<Track[]>([]);
     const [displayData, setDisplayData] = useState<DisplayData[]>([]);
     
@@ -163,24 +213,8 @@ function Home() {
     );
     const [myGenres, setMyGenres] = useState<string[]>([]);
     
-      const inputRef = useRef(null);
 
-  useEffect(() => {
-      const hash = window.location.hash;
-      let token = window.localStorage.getItem('token');
-
-      if (!token && hash) {
-        token = hash.substring(1).split('&').find(elem => elem.startsWith('access_token'))?.split('=')[1] ?? null;
-
-        if (token) {
-          window.localStorage.setItem('token', token);
-          setToken(token);
-        }
-        window.location.hash = '';
-      } else if (token) {
-        setToken(token);
-      }
-  }, []);
+    
 
   // API FETCH TOP TRACKS
     useEffect(() => {
@@ -195,7 +229,7 @@ function Home() {
             let fetchMore = true;
             
             
-            if (customGame){
+            if (props.customGame){
               while (fetchMore) {
                 const { data } = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
                   headers: {
@@ -262,11 +296,12 @@ function Home() {
             console.error('Error fetching top tracks:', error);
           } finally {
             setLoading(false);
+
           }
         }
       };
         fetchTopTracks();
-      }, [token, customGame, genreMenuOpen]);
+      }, [token, props.customGame, genreMenuOpen]);
 
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
@@ -281,14 +316,17 @@ function Home() {
         }
       }, [topTracks]);
     
+
     //    ENDING GAME
       useEffect(() => {
         if (tries <= (MAX_TRIES + 1) && correct){
             if (audioRef.current){
                 setIsModalVisible(true);
-                setStreak(streak + 1);
+                props.setStreak(props.streak + 1);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
+                setTotalTime(totalTime/tries)
+                props.setAvgTime(props.avgTime + totalTime)
             }
         }
       }, [tries]);
@@ -300,7 +338,15 @@ function Home() {
                 setIsModalVisible(true);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
-                setStreak(0);
+
+                if (props.streak > props.maxStreak){
+                  console.log('should update')
+                  props.setMaxStreak(props.streak)
+                  props.setAvgTime(Math.round(props.avgTime/props.streak))
+                  updateUser(props.spotifyId.slice(-10), props.spotifyId, props.streak, props.avgTime, props.userName)
+                }
+                
+                
             }
         }
       }, [tries]);
@@ -367,7 +413,7 @@ function Home() {
         }
         setTries(tries + 1);
     };
-
+    
     
 
     // PLAY PAUSE BUTTON
@@ -378,6 +424,7 @@ function Home() {
             } else {
                 const maxIntervalIndex = Math.min(tries, intervals.length - 1);
                 const maxTime = intervals[maxIntervalIndex];
+                setTotalTime(totalTime + maxTime);
     
                 if (!firstPlay) {
                     audioRef.current.currentTime = 0;
@@ -442,7 +489,71 @@ function Home() {
         setGameActive(false)
         setIsModalVisible(false);
         setSongGuesses([]);
+        if (!correct){
+          props.setStreak(0);
+        }
     };
+
+
+    // PROFILE CREATION
+    const createUser = async () => {
+      console.log('setting')
+      await setDoc(doc(db, "leaderboard", props.spotifyId.slice(-10)), {
+        spotify_id: props.spotifyId, 
+        max_streak: props.maxStreak, 
+        avg_time: props.avgTime, 
+        name: props.userName
+      });
+      console.log('done')
+    
+      getUsers(true);
+    };
+
+    const getMe = (users:any) => {
+      for (let n of users){
+        if (n.spotify_id === props.spotifyId){
+          props.setMaxStreak(n.max_streak)
+          props.setAvgTime(n.avg_time)
+          props.setUserName(n.name)
+          props.setSpotifyId(n.spotify_id)
+        }
+      }
+    }
+
+    const getUsers = async (first_run: boolean) => {
+      const data = await getDocs(usersCollectionRef);
+      // console.log(data.docs.map((doc:any) => ({ ...doc.data()}.spotify_id)))
+      let users = data.docs.map((doc:any) => ({ ...doc.data()}))
+      props.setUsers(users);
+      setUserImages(data.docs.map((doc:any) => ({ ...doc.data()}.spotify_id)));
+
+      if (first_run){
+        getMe(users);
+      }
+    };
+
+    const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string) => {
+      const userDoc = doc(db, "leaderboard", id);
+      console.log(userDoc)
+      const newFields = { spotify_id: spotify_id, max_streak: max_streak, avg_time: avg_time, name: name};
+      await updateDoc(userDoc, newFields);
+      getUsers(false);
+    };
+
+    
+
+
+    
+    useEffect(() =>{
+      getUsers(true);
+    },[]);
+
+    useEffect(() => {
+    if (userImages.length !== 0 && !userImages.includes(props.spotifyId)) {
+      console.log(true)
+        createUser();
+        }
+    }, [userImages]);
     
 
     return (
@@ -454,20 +565,20 @@ function Home() {
           ) : (
               <div className="flex-1 relative unblur">
                   <div className="absolute top-0 left-0 w-full h-full z-0 inset-0">
-                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
-                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
-                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
-                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
+                      <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
                   </div>
                   <Navbar 
-                    customGame={customGame} setCustomGame={setCustomGame} streak = {streak}
+                    customGame={props.customGame} setCustomGame={props.setCustomGame} streak = {props.streak} setSpotifyId={props.setSpotifyId} setUserName = {props.setUserName}
                   />
                   <div className="relative z-10">
                       <div className="box-container">
                           <div className = 'item-start flex flex-row'>
                             <div className = 'flex items-center flex-col'>
                               {songGuesses.map((guessObj, index) => (
-                                <div className = {`flex justify-start ${customGame ? "" : "mr-[39px]"}`} key={index}>
+                                <div className = {`flex justify-start ${props.customGame ? "" : "mr-[39px]"}`} key={index}>
                                     <Answer color={guessObj.correct ? "#1DB954" : "red"} song={guessObj.guess} />
                                 </div>
                               ))}
@@ -478,11 +589,11 @@ function Home() {
                                 myGenres = {myGenres}
                                 setGenreMenuOpen = {setGenreMenuOpen}
                                 genreMenuOpen = {genreMenuOpen}
-                                customGame = {customGame}
+                                customGame = {props.customGame}
                                 />
                               {!gameActive && (
                                 <Tooltip color="success" placement='bottom' closeDelay={0} content="new song" size = 'lg'>
-                                  <Button className={`bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 ${customGame ? "" : "mr-[36px]"}`}
+                                  <Button className={`bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 ${props.customGame ? "" : "mr-[36px]"}`}
                                   onClick={selectRandomTrack}>
                                       <RxShuffle size={30}/>
                                   </Button>
@@ -491,10 +602,11 @@ function Home() {
                               )}
 
 
+
                               {randomTrack && (
                               <div>
                                   {randomTrack.preview_url && gameActive ? (
-                                      <div className={`audio-component ${customGame ? "" : "mr-[50px]"}`}>
+                                      <div className={`audio-component ${props.customGame ? "" : "mr-[50px]"}`}>
                                           <audio
                                               ref={audioRef}
                                               src={randomTrack.preview_url}
