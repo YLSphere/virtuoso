@@ -97,31 +97,34 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
           ))}
         </ul>
       )}
-      <div className = 'flex flex-row items-start justify-center'>
-        <div className = "flex flex-col justify-center">
-          <input
-            className='input'
-            type="text"
-            name="songGuess"
-            placeholder="search"
-            value={songGuess}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            onBlur={handleInputBlur}
-            required
-          />
-          <button type="submit" className='submit-button'>submit</button>
+      <div className = 'flex flex-col justify-center'>
+        <div className = 'flex flex-row items-start justify-center'>
+          <div className = "flex flex-col justify-center ">
+            <input
+              className='input'
+              type="text"
+              name="songGuess"
+              placeholder="search"
+              value={songGuess}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              required
+            />
+            
+          </div>
+          {!customGame && 
+          <div >
+            <GenrePopover 
+              setSelectedGenres = {setSelectedGenres} 
+              myGenres = {myGenres} 
+              setGenreMenuOpen = {setGenreMenuOpen}
+              genreMenuOpen = {genreMenuOpen}
+            />
+          </div>}
+          
         </div>
-        {!customGame && 
-        <div >
-          <GenrePopover 
-            setSelectedGenres = {setSelectedGenres} 
-            myGenres = {myGenres} 
-            setGenreMenuOpen = {setGenreMenuOpen}
-            genreMenuOpen = {genreMenuOpen}
-          />
-        </div>}
-        
+        <button type="submit" className={`submit-button ${customGame ? "" : "mr-[40px]"}`}>submit</button>
       </div>
       
     </form>

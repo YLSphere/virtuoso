@@ -126,7 +126,7 @@ function Home(props: HomeProps) {
     const [genreMenuOpen, setGenreMenuOpen] = useState<boolean>(false);
     const [genres, setGenres] = useState<StringDictionary>(
       {
-        'modern_pop':[
+        'modern pop':[
           '37i9dQZF1DWT1y71ZcMPe5', // It's a Hit!
           '37i9dQZF1DWVlLVXKTOAYa', // Pop Right Now
           '37i9dQZF1DXcBWIGoYBM5M', // Today’s Top Hits
@@ -137,7 +137,7 @@ function Home(props: HomeProps) {
           '37i9dQZF1DX3rxVfibe1L0' // Mood Booster
   
         ],
-        "00s_pop":[
+        "00s pop":[
           '37i9dQZF1DX2KwEtNSejGe', // pop songs we can all scream
           '5hBt2KAyj6SKUyuzdcIZh5', // the pompeii playlist
           '4GZT3MbZ4IwjtIxKuYerfu', // Throwback Bangers (2000s)
@@ -197,12 +197,12 @@ function Home(props: HomeProps) {
           '37i9dQZF1DX7FY5ma9162x', // R&B Favourites *
           '5UFZXhJk7w4joCfg6jS0GV' // R&B/Chill
         ],
-        'hiphop':[
+        'hip hop':[
           '37i9dQZF1DWTl4y3vgJOXW', // Locked in
           '37i9dQZF1DX0XUsuxWHRQd', // Rap Caviar
           '16C7Tj4i9E3hNzhTaOdu3D' // Fire
         ],
-        '80s90s':[
+        '80s, 90s':[
           '4A8pN5orMQBh72D19n1xDb', // 80s & 90s hits
           '22a3X6TAY3qEs60PhcdLTn' // My old man playlist
         ],
@@ -345,7 +345,12 @@ function Home(props: HomeProps) {
                   console.log('should update')
                   props.setMaxStreak(props.streak)
                   props.setAvgTime(Math.round(props.avgTime/props.streak))
-                  updateUser(props.spotifyId.slice(-10), props.spotifyId, props.streak, props.avgTime, props.userName)
+                  if (props.customGame){
+                    updateUser(props.spotifyId.slice(-10), props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'])
+                  } else {
+                    updateUser(props.spotifyId.slice(-10), props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres)
+                  }
+                  
                 }
                 
                 
@@ -505,7 +510,8 @@ function Home(props: HomeProps) {
         spotify_id: props.spotifyId, 
         max_streak: props.maxStreak, 
         avg_time: props.avgTime, 
-        name: props.userName
+        name: props.userName,
+        genres: [],
       });
       console.log('done')
     
@@ -535,10 +541,10 @@ function Home(props: HomeProps) {
       }
     };
 
-    const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string) => {
+    const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string, genres: string[]) => {
       const userDoc = doc(db, "leaderboard", id);
       console.log(userDoc)
-      const newFields = { spotify_id: spotify_id, max_streak: max_streak, avg_time: avg_time, name: name};
+      const newFields = { spotify_id: spotify_id, max_streak: max_streak, avg_time: avg_time, name: name, genres: genres};
       await updateDoc(userDoc, newFields);
       getUsers(false);
     };

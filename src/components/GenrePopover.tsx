@@ -64,8 +64,8 @@ export default function GenrePopover({
         >
           <div className = 'flex flex-row justify-between gap-4'>
             <div className = 'flex flex-col'>
-              <Checkbox value = 'modern_pop'>modern pop</Checkbox>
-              <Checkbox value = "00s_pop">00s pop</Checkbox>
+              <Checkbox value = 'modern pop'>modern pop</Checkbox>
+              <Checkbox value = "00s pop">00s pop</Checkbox>
               <Checkbox value = 'alternative'>alternative</Checkbox>
               <Checkbox value = 'kpop'>k-pop</Checkbox>
               <Checkbox value = 'rnb'>rnb</Checkbox>
@@ -75,9 +75,9 @@ export default function GenrePopover({
               <Checkbox value = 'krnb'>k-rnb</Checkbox>
               <Checkbox value = 'cantopop'>cantopop</Checkbox>
               <Checkbox value = 'mandopop'>mandopop</Checkbox>
-              <Checkbox value = 'hiphop'>hip-hop</Checkbox>
+              <Checkbox value = 'hip hop'>hip-hop</Checkbox>
               <Checkbox value = 'edm'>edm</Checkbox>
-              <Checkbox value = '80s90s'>80s/90s</Checkbox>
+              <Checkbox value = '80s, 90s'>80s/90s</Checkbox>
             </div>
           </div>
         </CheckboxGroup>

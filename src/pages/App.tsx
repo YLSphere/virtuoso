@@ -87,6 +87,7 @@ function App() {
                   setSpotifyId = {setSpotifyId}
                   setUserName = {setUserName}
                   setCustomGame = {setCustomGame}
+                  myGenres = {myGenres}
                 />} />
               </Routes>
             </div>

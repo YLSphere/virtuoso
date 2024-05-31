@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar';
 
 import "../css/App.css";
 import '../css/particles.css';
+import "../css/Home.css"
 
 import {
   Table,
@@ -18,8 +19,8 @@ import {
   TableCell, 
   User, 
   Pagination, 
-  PaginationItem, 
-  PaginationCursor
+  Chip,
+  Button
 } from "@nextui-org/react";
 
 import {
@@ -57,10 +58,11 @@ interface LeaderboardProps {
   setSpotifyId:any;
   setUserName:any;
   setCustomGame:any;
+  myGenres: string[];
 }
 
 function Leaderboard(props: LeaderboardProps) {
-  const columns = ['name', 'highest streak', 'avg. listening time (s)']
+  const columns = ['name', 'highest streak', 'avg. listening time (s)', 'genres']
   const [page, setPage] = useState<number>(1);
   const rowsPerPage = 5;
   const { token } = useSpotifyToken();
@@ -75,6 +77,21 @@ function Leaderboard(props: LeaderboardProps) {
     return props.users.slice(start, end);
   }, [page, props.users]);
 
+  const genreColorMap:{ [id: string] : string; } = {
+    'modern pop': 'bg-[#b840ae]',
+    "00s pop": 'bg-[#b87040]',
+    "alternative": 'bg-[#fafafa]',
+    "rock": 'bg-[#40b894]',
+    "kpop": 'bg-[#b84054]',
+    "krnb": 'bg-[#408cb8]',
+    "cantopop": 'bg-[#404cb8]',
+    "mandopop": 'bg-[#7840b8]',
+    "hip hop": 'bg-[#b84040]',
+    "80s, 90s": 'bg-[#1714db]',
+    'edm': 'bg-[#d4c818]',
+    'custom': 'bg-[#40b86a]'
+  }
+
   
 
   // const deleteUser = async (spotify_id:string) => {
@@ -85,7 +102,7 @@ function Leaderboard(props: LeaderboardProps) {
 
   return (
     <div>
-      <div className="absolute top-0 left-0 w-full h-full z-0 inset-0">
+      <div className="absolute top-0 left-0 w-full h-full z-0 inset-0 unblur">
           <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
           <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
           <div className="particle" style={{ animationDuration: `${Math.max(100- 10*props.streak, 10)}s`}}></div>
@@ -127,7 +144,7 @@ function Leaderboard(props: LeaderboardProps) {
             }
             classNames={{
               wrapper: "min-h-[222px] bg-black",
-              th: 'bg-[#303030] text-[#ccc]',
+              th: 'bg-[#303030] text-[#ccc] justify-center text-center',
 
             }}
             
@@ -155,13 +172,28 @@ function Leaderboard(props: LeaderboardProps) {
                   </TableCell>
                   <TableCell className="text-[#ccc] text-center">{row.max_streak.toString()}</TableCell>
                   <TableCell className="text-[#ccc] text-center">{(Math.round(row.avg_time * 100) / 100).toFixed(2).toString()}</TableCell>
+                  <TableCell className="items-center align-center justify-center flex flex-wrap max-w-[500px]">
+                    {row.genres.map((genre:string, index_g:number) =>
+                    <Chip 
+                    key = {index_g + 100} 
+                    
+                    variant = 'dot'
+                    classNames={{
+                      base: 'm-1',
+                      content: "text-[#ccc]",
+                      dot: genreColorMap[genre],
+                    }}
+                    >
+                      {genre}
+                    </Chip>)}
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        
       </div>
+      
     </div>
   );
 }
