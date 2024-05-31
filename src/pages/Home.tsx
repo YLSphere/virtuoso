@@ -105,7 +105,7 @@ function Home(props: HomeProps) {
     const [gameActive, setGameActive] = useState<boolean>(false);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [firstPlay, setfirstPlay] = useState<boolean>(true);
+    const [firstPlay, setfirstPlay] = useState<boolean>(false);
     
     const [totalTime, setTotalTime] = useState<number>(0);
 
@@ -327,7 +327,6 @@ function Home(props: HomeProps) {
                 props.setStreak(props.streak + 1);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
-                setTotalTime(totalTime/tries)
                 props.setAvgTime(props.avgTime + totalTime)
             }
         }
@@ -362,11 +361,12 @@ function Home(props: HomeProps) {
     const selectRandomTrack = () => {
       
         setTries(0)
+        setTotalTime(0)
         setSongGuesses([])
         if (props.topTracks.length > 0) {
             const randomIndex = Math.floor(Math.random() * props.topTracks.length);
             const selectedTrack = props.topTracks[randomIndex];
-            console.log(selectedTrack.name);
+            // console.log(selectedTrack.name);
             setRandomTrack(selectedTrack);
             setAnswerIndex(randomIndex);
             setCorrect(false)
@@ -428,6 +428,9 @@ function Home(props: HomeProps) {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
+                console.log(totalTime)
+                setTotalTime(totalTime + currentTime);
+                console.log(totalTime)
             } else {
                 const maxIntervalIndex = Math.min(tries, intervals.length - 1);
                 const maxTime = intervals[maxIntervalIndex];
@@ -447,7 +450,11 @@ function Home(props: HomeProps) {
                         if (currentTime > maxTime) {
                             audioRef.current.pause();
                             setIsPlaying(false);
-                            setTotalTime(totalTime + currentTime);
+                            if (firstPlay){
+                              setTotalTime(totalTime - intervals[maxIntervalIndex - 1] + currentTime);
+                            } else {
+                              setTotalTime(totalTime + currentTime)
+                            }
                         } else {
                             requestAnimationFrame(checkTime);
                         }
@@ -474,6 +481,7 @@ function Home(props: HomeProps) {
 
     //   SKIP BUTTON
     const skip = () => {
+      console.log(totalTime)
         setTries(prevTries => {
             const newTries = prevTries + 1;
             if (audioRef.current) {
