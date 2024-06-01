@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {Button} from "@nextui-org/react";
+import {Button, Autocomplete, AutocompleteItem} from "@nextui-org/react";
 import "../css/Form.css"
 
 import GenrePopover from '../components/GenrePopover';
@@ -24,10 +24,11 @@ interface FormProps {
 
 const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen, customGame}) => {
   const [songGuess, setSongGuess] = useState('');
-  const [suggestions, setSuggestions] = useState<DisplayData[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const suggestionsRef = useRef<HTMLUListElement | null>(null);
-  const [suggestionsHeight, setSuggestionsHeight] = useState(0);
+  const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
+ .map(name => {
+   return displayData.find(a => a.wholeName === name)
+ })
 
   function detectMob() {
     const toMatch = [
@@ -44,92 +45,67 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
         return navigator.userAgent.match(toMatchItem);
     });
   }
-
-
-  useEffect(() => {
-    if (suggestionsRef.current) {
-      setSuggestionsHeight(suggestionsRef.current.clientHeight);
-    }
-  }, [suggestions]);
-
-  const handleInputFocus = () => {
-    setIsInputFocused(true);
-  };
-
-  const handleInputBlur = () => {
-    setIsInputFocused(false);
-  };
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // event.preventDefault();
+    event.preventDefault();
     onSubmit(songGuess);
     setSongGuess('');
     return false;
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSongGuess(value);
-
-    const uniqueWholeNames = Array.from(
-      new Set(
-        displayData
-          .filter(track => track.wholeName.toLowerCase().includes(value.toLowerCase()))
-          .map(track => track.wholeName)
-      )
-    );
-  
-    const filteredTracks = uniqueWholeNames.map(wholeName =>
-      displayData.find(track => track.wholeName === wholeName)
-    ).filter(track => track !== undefined) as DisplayData[];
-  
-    setSuggestions(filteredTracks);
+  const handleInputChange = (value:string) => {
+    setSongGuess(value)
   };
-
-  const handleSuggestionClick = (track: DisplayData) => {
-    setSongGuess(track.wholeName);
-    setSuggestions([]); // Clear suggestions
-  };
-
-  const handleBodyClick = (event: MouseEvent) => {
-    if (!isInputFocused) {
-      setSuggestions([]);
-    }
-  };
-
-  useEffect(() => {
-    document.body.addEventListener('click', handleBodyClick);
-    return () => {
-      document.body.removeEventListener('click', handleBodyClick);
-    };
-  }, [isInputFocused]);
 
   return (
     <form onSubmit={handleSubmit} className='form'>
-      {suggestions.length > 0 && (
-        <ul className={`suggestions ${customGame ? "" : "mr-[40px]"}`} ref={suggestionsRef} style={{ marginBottom: suggestionsHeight + 100 }}>
-          {suggestions.map(track => (
-            <li key={track.index} onClick={() => handleSuggestionClick(track)}>
-              {track.wholeName}
-            </li>
-          ))}
-        </ul>
-      )}
+
+      
+      
       <div className = 'flex flex-col justify-center items-center'>
         <div className = 'flex flex-row items-start justify-center'>
           <div className = "flex flex-col justify-center ">
-            <input
-              className={`input ${detectMob() ? "w-[70vw]" : "w-[35vw]"}`}
-              type="text"
-              name="songGuess"
-              placeholder="search"
-              value={songGuess}
-              onChange={handleInputChange}
-              onFocus={handleInputFocus}
-              onBlur={handleInputBlur}
-              required
-            />
-            
+          <Autocomplete
+            defaultItems = {displayData_set}
+            onInputChange = {handleInputChange}
+            onFocus = {() => {setIsInputFocused(!isInputFocused)}}
+            onBlur = {() => {setIsInputFocused(!isInputFocused)}}
+            label="search"
+            radius = 'sm'
+            classNames={{
+              base: `bg-transparent input ${detectMob() ? "w-[70vw]" : "w-[35vw]"}`,
+            }}
+            popoverProps={{
+              classNames: {
+                base: "bg-transparent",
+                content: "p-1 text-black bg-[#cccacaee]",
+              },
+            }}
+            inputProps={{
+              classNames: {
+                input: "text-[16px]",
+                inputWrapper: "bg-[#cccacaee] border-[white] border-2 ",
+                innerWrapper:'h-[5vh]',
+                label: isInputFocused || songGuess ? 'text-black' : 'text-black text-[16px]'
+              },
+            }}
+            listboxProps={{
+              hideSelectedIcon: true,
+              itemClasses: {
+                base: [
+                  "text-black",
+                  "transition-opacity",
+                  "data-[hover=true]:text-foreground",
+                  "dark:data-[hover=true]:bg-default-50",
+                  "data-[pressed=true]:opacity-50",
+                  "data-[hover=true]:bg-default-200",
+                  "data-[selectable=true]:focus:bg-default-100",
+                  "data-[focus-visible=true]:ring-default-500",
+                ],
+              },
+            }}
+          >
+            {(display) => <AutocompleteItem key={display.index}>{display.wholeName}</AutocompleteItem>}
+          </Autocomplete>
           </div>
           {!customGame && 
           <div >

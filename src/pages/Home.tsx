@@ -15,7 +15,7 @@ import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
-import {Button, Tooltip, user} from "@nextui-org/react";
+import {Button, Tooltip, user, Autocomplete, AutocompleteItem} from "@nextui-org/react";
 
 import {
   getFirestore,

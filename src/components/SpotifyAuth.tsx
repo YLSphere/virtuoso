@@ -1,6 +1,7 @@
 import React from 'react';
 import "../css/App.css";
 import { FaSpotify } from "react-icons/fa";
+import {Button} from "@nextui-org/react";
 
 const SpotifyAuth = () => {
   const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
@@ -16,9 +17,9 @@ const SpotifyAuth = () => {
 
   return (
     <div className="w-max flex">
-      <button className="spotify" onClick={handleLogin}>
+      <Button isIconOnly={true} radius = 'full' className="text-[#40b86a] shadow-lg spotify w-max h-[8vh] bg-transparent flex" onClick={handleLogin}>
         <FaSpotify size={70} />
-      </button>
+      </Button>
     </div>
   );
 };

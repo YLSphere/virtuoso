@@ -20,12 +20,12 @@
 
 .input{
     height: 4.5vh;
-    border-radius: 5px;
-    border: 2px solid white;
+    /* border-radius: 5px; */
+    /* border: 2px solid white; */
     text-shadow: none !important;   
-    padding: 8px;
+    /* padding: 8px; */
     padding-bottom: 10px;
-    background-color: black;
+    /* background-color: black; */
 }
 
 .submit-button:hover {
