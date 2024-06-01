@@ -34,6 +34,8 @@ function App() {
   const [streak, setStreak] = useState<number>(0);
   const [myGenres, setMyGenres] = useState<string[]>([]);
   const [topTracks, setTopTracks] = useState<Track[]>([]);
+  const [profileImage, setProfileImage] = useState<string>("");
+  
   
 
   useEffect(() => {
@@ -78,6 +80,8 @@ function App() {
                     setMyGenres = {setMyGenres}
                     topTracks = {topTracks}
                     setTopTracks = {setTopTracks}
+                    profileImage = {profileImage}
+                    setProfileImage = {setProfileImage}
                   />}/>
                 <Route path= '/leaderboard'
                 element={<Leaderboard  
@@ -88,6 +92,8 @@ function App() {
                   setUserName = {setUserName}
                   setCustomGame = {setCustomGame}
                   myGenres = {myGenres}
+                  profileImage = {profileImage}
+                  setProfileImage={setProfileImage}
                 />} />
               </Routes>
             </div>

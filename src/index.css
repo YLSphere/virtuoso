@@ -48,3 +48,6 @@ button {
   transition: border-color 0.25s;
 }
 
+*:focus {
+  outline: none;
+}

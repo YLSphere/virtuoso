@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import {Button} from "@nextui-org/react";
 import "../css/Form.css"
 
 import GenrePopover from '../components/GenrePopover';
@@ -28,6 +29,22 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
   const suggestionsRef = useRef<HTMLUListElement | null>(null);
   const [suggestionsHeight, setSuggestionsHeight] = useState(0);
 
+  function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+    
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+  }
+
 
   useEffect(() => {
     if (suggestionsRef.current) {
@@ -44,9 +61,10 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    // event.preventDefault();
     onSubmit(songGuess);
     setSongGuess('');
+    return false;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,11 +115,11 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
           ))}
         </ul>
       )}
-      <div className = 'flex flex-col justify-center'>
+      <div className = 'flex flex-col justify-center items-center'>
         <div className = 'flex flex-row items-start justify-center'>
           <div className = "flex flex-col justify-center ">
             <input
-              className='input'
+              className={`input ${detectMob() ? "w-[70vw]" : "w-[35vw]"}`}
               type="text"
               name="songGuess"
               placeholder="search"
@@ -124,7 +142,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
           </div>}
           
         </div>
-        <button type="submit" className={`submit-button ${customGame ? "" : "mr-[40px]"}`}>submit</button>
+        <Button type="submit" className={`submit-button bg-transparent text-[#ccc] text-base ${customGame ? "" : "mr-[40px]"}`}>submit</Button>
       </div>
       
     </form>

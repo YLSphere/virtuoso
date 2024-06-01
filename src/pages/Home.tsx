@@ -65,7 +65,7 @@ interface HomeProps{
   setUserName: any;
   users: any;
   setUsers: any;
-  customGame:any;
+  customGame:boolean;
   setCustomGame:any;
   streak:number;
   setStreak:any;
@@ -73,6 +73,9 @@ interface HomeProps{
   setMyGenres: any;
   topTracks: Track[];
   setTopTracks: any;
+  profileImage: any;
+  setProfileImage:any;
+
 }
 
 const firebaseConfig = {
@@ -93,6 +96,22 @@ const db = getFirestore(app);
 
 
 function Home(props: HomeProps) {
+
+  function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+    
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+  }
 
     const { token, setToken } = useSpotifyToken();
     
@@ -190,7 +209,13 @@ function Home(props: HomeProps) {
           '12rjCFxeO1DFy2XSpg9AK4' // Cantopop Classics (90s and 00s)
 
         ],
-        'mandopop':[],
+        'mandopop':[
+          '37i9dQZF1DWVUmQhB7PvFH', // 2000NDHYJK
+          '37i9dQZF1DXe3opFF4aPDr', // 2010NDHYJLX *
+          '37i9dQZF1DWSALMZjluyr7', // JDJC
+          '37i9dQZF1DWVNQeZtY2TDM' // SNCJX : HYLX
+
+        ],
         'rnb':[
           '37i9dQZF1DX4SBhb3fqCJd', // RNB X
           '37i9dQZF1DWTUHzPOW6Jl7', // Energy Booster: R&B *
@@ -213,6 +238,8 @@ function Home(props: HomeProps) {
         ]
       }
     );
+
+    const [currentGenres, setCurrentGenress] = useState<string[]>(props.myGenres);
     
     
 
@@ -288,7 +315,7 @@ function Home(props: HomeProps) {
                         fetchMore = false; // Stop fetching if an error occurs
                     }
                   }
-                  console.log(allTracks.length)
+                  // console.log(allTracks.length)
                 }
               }
             }
@@ -302,7 +329,11 @@ function Home(props: HomeProps) {
           }
         }
       };
-        fetchTopTracks();
+        if(!(currentGenres.sort().join(',') === props.myGenres.sort().join(','))||props.customGame){
+          setCurrentGenress(props.myGenres)
+          fetchTopTracks();
+        }
+        
       }, [props.customGame, genreMenuOpen]);
 
     // CREATE WHOLENAME FOR DISPLAY
@@ -345,9 +376,9 @@ function Home(props: HomeProps) {
                   props.setMaxStreak(props.streak)
                   props.setAvgTime(Math.round(props.avgTime/props.streak))
                   if (props.customGame){
-                    updateUser(props.spotifyId.slice(-10), props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'])
+                    updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'], props.profileImage)
                   } else {
-                    updateUser(props.spotifyId.slice(-10), props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres)
+                    updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres, props.profileImage)
                   }
                   
                 }
@@ -405,7 +436,7 @@ function Home(props: HomeProps) {
 
     // ANSWER BOX
     const Answer: React.FC<{ color: string, song: string}> = ({ color, song }) => {
-    return <div className="box" style={{ backgroundColor: color }}>
+    return <div className={`box ${detectMob() ? "w-[70vw]" : "w-[35vw]"}`} style={{ backgroundColor: color }}>
         <p className = 'answer'>{song}</p>
         
     </div>;
@@ -425,17 +456,20 @@ function Home(props: HomeProps) {
 
     // PLAY PAUSE BUTTON
     const handlePlayPauseClick = () => {
+      const maxIntervalIndex = Math.min(tries, intervals.length - 1);
+      const maxTime = intervals[maxIntervalIndex];
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
-                console.log(totalTime)
-                setTotalTime(totalTime + currentTime);
-                console.log(totalTime)
+                if (firstPlay){
+                  setTotalTime(totalTime - intervals[maxIntervalIndex - 1] + currentTime);
+                } else {
+                  setTotalTime(totalTime + currentTime)
+                }
+            
+
             } else {
-                const maxIntervalIndex = Math.min(tries, intervals.length - 1);
-                const maxTime = intervals[maxIntervalIndex];
-                
-    
+
                 if (!firstPlay) {
                     audioRef.current.currentTime = 0;
                     setCurrentTime(0);
@@ -449,12 +483,12 @@ function Home(props: HomeProps) {
                         const currentTime = audioRef.current.currentTime;
                         if (currentTime > maxTime) {
                             audioRef.current.pause();
-                            setIsPlaying(false);
                             if (firstPlay){
                               setTotalTime(totalTime - intervals[maxIntervalIndex - 1] + currentTime);
                             } else {
                               setTotalTime(totalTime + currentTime)
                             }
+                            setIsPlaying(false);
                         } else {
                             requestAnimationFrame(checkTime);
                         }
@@ -481,7 +515,6 @@ function Home(props: HomeProps) {
 
     //   SKIP BUTTON
     const skip = () => {
-      console.log(totalTime)
         setTries(prevTries => {
             const newTries = prevTries + 1;
             if (audioRef.current) {
@@ -514,12 +547,13 @@ function Home(props: HomeProps) {
     // PROFILE CREATION
     const createUser = async () => {
       console.log('setting')
-      await setDoc(doc(db, "leaderboard", props.spotifyId.slice(-10)), {
+      await setDoc(doc(db, "leaderboard", props.spotifyId), {
         spotify_id: props.spotifyId, 
         max_streak: props.maxStreak, 
         avg_time: props.avgTime, 
         name: props.userName,
         genres: [],
+        profile_image: props.profileImage
       });
       console.log('done')
     
@@ -533,26 +567,24 @@ function Home(props: HomeProps) {
           props.setAvgTime(n.avg_time)
           props.setUserName(n.name)
           props.setSpotifyId(n.spotify_id)
+          props.setProfileImage(n.profile_image)
         }
       }
     }
 
     const getUsers = async (first_run: boolean) => {
       const data = await getDocs(usersCollectionRef);
-      // console.log(data.docs.map((doc:any) => ({ ...doc.data()}.spotify_id)))
       let users = data.docs.map((doc:any) => ({ ...doc.data()}))
       props.setUsers(users);
       setUserImages(data.docs.map((doc:any) => ({ ...doc.data()}.spotify_id)));
-
       if (first_run){
         getMe(users);
       }
     };
 
-    const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string, genres: string[]) => {
+    const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string, genres: string[], profile_image:string) => {
       const userDoc = doc(db, "leaderboard", id);
-      console.log(userDoc)
-      const newFields = { spotify_id: spotify_id, max_streak: max_streak, avg_time: avg_time, name: name, genres: genres};
+      const newFields = { spotify_id: spotify_id, max_streak: max_streak, avg_time: avg_time, name: name, genres: genres, profile_image: profile_image};
       await updateDoc(userDoc, newFields);
       getUsers(false);
     };
@@ -567,7 +599,6 @@ function Home(props: HomeProps) {
 
     useEffect(() => {
     if (userImages.length !== 0 && !userImages.includes(props.spotifyId)) {
-      console.log(true)
         createUser();
         }
     }, [userImages]);
@@ -589,6 +620,7 @@ function Home(props: HomeProps) {
                   </div>
                   <Navbar 
                     customGame={props.customGame} setCustomGame={props.setCustomGame} streak = {props.streak} setSpotifyId={props.setSpotifyId} setUserName = {props.setUserName}
+                    profileImage = {props.profileImage} setProfileImage = {props.setProfileImage}
                   />
                   <div className="relative z-10">
                       <div className="box-container">
@@ -610,7 +642,7 @@ function Home(props: HomeProps) {
                                 />
                               {!gameActive && (
                                 <Tooltip color="success" placement='bottom' closeDelay={0} content="new song" size = 'lg'>
-                                  <Button className={`bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 ${props.customGame ? "" : "mr-[36px]"}`}
+                                  <Button isIconOnly className={`bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 ${props.customGame ? "" : "mr-[36px]"}`}
                                   onClick={selectRandomTrack}>
                                       <RxShuffle size={30}/>
                                   </Button>
@@ -623,7 +655,7 @@ function Home(props: HomeProps) {
                               {randomTrack && (
                               <div>
                                   {randomTrack.preview_url && gameActive ? (
-                                      <div className={`audio-component ${props.customGame ? "" : "mr-[50px]"}`}>
+                                      <div className={`audio-component ${props.customGame ? "" : "mr-[41px]"} ${detectMob() ? "w-[70vw]" : "w-[35vw]"}`}>
                                           <audio
                                               ref={audioRef}
                                               src={randomTrack.preview_url}
@@ -634,11 +666,11 @@ function Home(props: HomeProps) {
                                               <button className='play-pause-button' onClick={handlePlayPauseClick}>
                                                   {isPlaying ? <VscDebugPause size={100} className="icon" /> : <IoPlay size={100} className="icon" />}
                                               </button>
-                                              <button className='play-pause-button' onClick={skip}>
+                                              <button className='play-pause-button ' onClick={skip}>
                                                   <PiFastForwardFill size={35} />
                                               </button>
                                           </div>
-                                          <div className="progress-bar">
+                                          <div className={`progress-bar ${detectMob() ? "w-[70vw]" : "w-[35vw]"}`}>
                                               <div
                                                   className="progress"
                                                   style={{ width: `${(currentTime.toFixed(2) / Math.round(duration)) * 100}%` }}

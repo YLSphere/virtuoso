@@ -59,22 +59,32 @@ interface LeaderboardProps {
   setUserName:any;
   setCustomGame:any;
   myGenres: string[];
+  profileImage:any;
+  setProfileImage:any;
+  
 }
 
 function Leaderboard(props: LeaderboardProps) {
   const columns = ['name', 'highest streak', 'avg. listening time (s)', 'genres']
   const [page, setPage] = useState<number>(1);
-  const rowsPerPage = 5;
-  const { token } = useSpotifyToken();
 
-  const usersCollectionRef = collection(db, "leaderboard");
+  const rowsPerPage = 6;
+  const pages = useMemo(() => {
+    return props.users.filter((row: any) => row.max_streak > 0).length ? Math.ceil(props.users.filter((row: any) => row.max_streak > 0).length / rowsPerPage) : 0;
+  }, [props.users.filter((row: any) => row.max_streak > 0).length, rowsPerPage]);
 
-  const pages = Math.ceil(props.users.length / rowsPerPage);
+
+  // const pages = Math.ceil(props.users.filter((row: any) => row.max_streak > 0).length / rowsPerPage);
+
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return props.users.slice(start, end);
+    return props.users.filter((row: any) => row.max_streak > 0).sort((a:any,b:any)=>{
+      if (a.max_streak-b.max_streak>1) {return -1;}
+      else if (a.max_streak-b.max_streak<1) {return 1;}
+      else { return 0;}
+    }).slice(start, end);
   }, [page, props.users]);
 
   const genreColorMap:{ [id: string] : string; } = {
@@ -114,9 +124,11 @@ function Leaderboard(props: LeaderboardProps) {
       streak = {props.streak} 
       setSpotifyId={props.setSpotifyId} 
       setUserName = {props.setUserName}
+      profileImage = {props.setProfileImage}
+      setProfileImage = {props.setProfileImage}
       />
   
-      <div className = 'flex justify-center items-center h-screen' >
+      <div className = 'flex justify-center items-center h-screen unblur max-w-[70vw]' >
         <div>
           <Table 
             aria-label="leaderboardExample table with client side pagination"
@@ -143,6 +155,7 @@ function Leaderboard(props: LeaderboardProps) {
               </div>
             }
             classNames={{
+              base: "overflow-auto",
               wrapper: "min-h-[222px] bg-black",
               th: 'bg-[#303030] text-[#ccc] justify-center text-center',
 
@@ -155,17 +168,15 @@ function Leaderboard(props: LeaderboardProps) {
               )}
               
             </TableHeader>
-            <TableBody emptyContent={"no one here :("} key = 'results'>
+            <TableBody 
+            emptyContent={"no one here :("} 
+            key = 'results'>
 
-              {props.users.filter((row: any) => row.max_streak > 0).sort((a:any,b:any)=>{
-                  if (a.max_streak-b.max_streak>1) {return -1;}
-                  else if (a.max_streak-b.max_streak<1) {return 1;}
-                  else { return 0;}
-                }).map((row:any, index:number) => 
+              {items.map((row:any, index:number) => 
                   <TableRow key={index}>
                   <TableCell className="text-[#ccc]">
                   <User
-                    avatarProps={{radius: "lg", src: row.spotify_id}}
+                    avatarProps={{radius: "lg", src: row.profile_image}}
                     name={row.name}
                   >
                   </User>

@@ -16,18 +16,41 @@ import {Button, Tooltip} from "@nextui-org/react";
 interface UserProfile {
   display_name: string;
   images: { url: string }[];
+  id: string;
 }
 
 interface NavbarProps {
   customGame: boolean;
   setCustomGame: React.Dispatch<React.SetStateAction<boolean>>;
   streak: number;
-  setSpotifyId: any
-  setUserName: any
+  setSpotifyId: any;
+  setUserName: any;
+  profileImage:any;
+  setProfileImage:any;
 }
 
 function Navbar(props: NavbarProps) {
+
+  var sBrowser, sUsrAg = navigator.userAgent;
+
+  function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+    
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+}
+
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
   const {token} = useSpotifyToken();
   const navigate = useNavigate();
 
@@ -40,8 +63,9 @@ function Navbar(props: NavbarProps) {
           },
         });
         setUserProfile(response.data);
-        props.setSpotifyId(response.data.images[0]?.url);
+        props.setSpotifyId(response.data.id);
         props.setUserName(response.data.display_name);
+        props.setProfileImage(response.data.images[0]?.url);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -62,6 +86,7 @@ function Navbar(props: NavbarProps) {
   };
   const handleChange = () => {
     props.setCustomGame((prevState:any) => !prevState);
+    console.log(props.customGame)
   };
 
   return (
@@ -69,20 +94,24 @@ function Navbar(props: NavbarProps) {
       <div className="navbar-container align-middle my-0 p-0">
         <div className="navbar-logo" onClick={handleProfileClick}>
           {userProfile && (
-            <div className="navbar-profile" onClick={handleProfileClick}>
-              <img
-                src={userProfile.images[0]?.url}
-                alt={userProfile.display_name}
-                className="navbar-profile-image"
-              />
-              <span className="navbar-profile-name" onClick={handleProfileClick}>{userProfile.display_name}</span>
-            </div>
+            <Button className='bg-transparent' onClick={handleProfileClick}>
+              <div className="navbar-profile" >
+                <img
+                  src={userProfile.images[0]?.url}
+                  alt={userProfile.display_name}
+                  className="navbar-profile-image"
+                />
+                {!detectMob() && <span className="navbar-profile-name" onClick={handleProfileClick}>{userProfile.display_name}</span>}
+              </div>
+            </Button>
           )}
         </div>
-        <ul className="align-right justify-end w-full h-[100%] my-0 p-0 flex flex-row space-x-10 items-center">
-          <li className="navbar-item" onClick={handleLeaderboardClick}>
+        <ul className="align-right justify-end w-[35vh] h-[100%] my-0 p-0 flex flex-row space-x-10 items-center">
+          <li className="navbar-item" >
             <div className="navbar-link">
-              <MdLeaderboard size={25} style={{ color: "#d8d649" }} />
+              <Button isIconOnly className='bg-transparent' onClick={handleLeaderboardClick}>
+                <MdLeaderboard size={25} style={{ color: "#d8d649" }} />
+              </Button>
             </div>
           </li>
           <li className="navbar-item">
