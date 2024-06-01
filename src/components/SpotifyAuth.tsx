@@ -17,7 +17,7 @@ const SpotifyAuth = () => {
 
   return (
     <div className="w-max flex">
-      <Button isIconOnly={true} radius = 'full' className="text-[#40b86a] shadow-lg spotify w-max h-[8vh] bg-transparent flex" onClick={handleLogin}>
+      <Button isIconOnly={true} radius = 'full' className="text-[#40b86a] shadow-lg spotify w-max h-[9vh] bg-transparent flex" onClick={handleLogin}>
         <FaSpotify size={70} />
       </Button>
     </div>

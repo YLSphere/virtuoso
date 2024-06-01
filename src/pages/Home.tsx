@@ -7,7 +7,7 @@ import "../css/App.css"
 import '../css/particles.css';
 
 import Form from '../components/Form'
-import Spinner from '../components/Spinner'
+// import Spinner from '../components/Spinner'
 import Modal from '../components/Modal';
 import Navbar from '../components/Navbar';
 
@@ -15,7 +15,7 @@ import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
 import { PiFastForwardFill } from "react-icons/pi";
 import { RxShuffle } from "react-icons/rx";
-import {Button, Tooltip, user, Autocomplete, AutocompleteItem} from "@nextui-org/react";
+import {Button, Tooltip, user, Spinner, Progress} from "@nextui-org/react";
 
 import {
   getFirestore,
@@ -75,7 +75,6 @@ interface HomeProps{
   setTopTracks: any;
   profileImage: any;
   setProfileImage:any;
-
 }
 
 const firebaseConfig = {
@@ -359,6 +358,7 @@ function Home(props: HomeProps) {
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
                 props.setAvgTime(props.avgTime + totalTime)
+                
             }
         }
       }, [tries]);
@@ -370,20 +370,19 @@ function Home(props: HomeProps) {
                 setIsModalVisible(true);
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
-
-                if (props.streak > props.maxStreak){
-                  console.log('should update')
-                  props.setMaxStreak(props.streak)
-                  props.setAvgTime(Math.round(props.avgTime/props.streak))
-                  if (props.customGame){
-                    updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'], props.profileImage)
-                  } else {
-                    updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres, props.profileImage)
-                  }
-                  
-                }
-                
-                
+            console.log(props.maxStreak)
+            if (props.streak > props.maxStreak && props.streak > 0){
+              
+              console.log('should update')
+              props.setMaxStreak(props.streak)
+              props.setAvgTime(Math.round(props.avgTime/props.streak))
+              if (props.customGame){
+                updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'], props.profileImage)
+              } else {
+                updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres, props.profileImage)
+              }
+              
+            }
             }
         }
       }, [tries]);
@@ -397,10 +396,11 @@ function Home(props: HomeProps) {
         if (props.topTracks.length > 0) {
             const randomIndex = Math.floor(Math.random() * props.topTracks.length);
             const selectedTrack = props.topTracks[randomIndex];
-            // console.log(selectedTrack.name);
+            console.log(selectedTrack.name);
             setRandomTrack(selectedTrack);
             setAnswerIndex(randomIndex);
-            setCorrect(false)
+            setCorrect(false);
+            setfirstPlay(false);
             setGameActive(true)
             setCurrentTime(0); // Reset current time when selecting a new track
             if (audioRef.current) {
@@ -458,6 +458,7 @@ function Home(props: HomeProps) {
     const handlePlayPauseClick = () => {
       const maxIntervalIndex = Math.min(tries, intervals.length - 1);
       const maxTime = intervals[maxIntervalIndex];
+      
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
@@ -577,9 +578,8 @@ function Home(props: HomeProps) {
       let users = data.docs.map((doc:any) => ({ ...doc.data()}))
       props.setUsers(users);
       setUserImages(data.docs.map((doc:any) => ({ ...doc.data()}.spotify_id)));
-      if (first_run){
-        getMe(users);
-      }
+      getMe(users);
+
     };
 
     const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string, genres: string[], profile_image:string) => {
@@ -608,7 +608,10 @@ function Home(props: HomeProps) {
       <div className="h-screen w-screen flex flex-col">
           {loading ? (
               <div className='spinner'>
-                  <Spinner />
+                  {/* <Spinner /> */}
+                  <Spinner color="success" size = "lg" classNames={{
+                    base: 'spinner-size',
+                  }}/>
               </div>
           ) : (
               <div className="flex-1 relative unblur">
@@ -639,6 +642,7 @@ function Home(props: HomeProps) {
                                 setGenreMenuOpen = {setGenreMenuOpen}
                                 genreMenuOpen = {genreMenuOpen}
                                 customGame = {props.customGame}
+                                gameActive = {gameActive}
                                 />
                               {!gameActive && (
                                 <Tooltip color="success" placement='bottom' closeDelay={0} content="new song" size = 'lg'>

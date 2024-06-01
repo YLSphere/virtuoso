@@ -23,14 +23,6 @@ export default function GenrePopover({
 
   function handleClose(){
     setIsOpen(!isOpen);
-    // console.log(Array.from(new Set(myGenres.concat(localGenres))).length)
-    // console.log(Array.from(new Set(myGenres.concat(localGenres))))
-    // console.log(localGenres.length)
-    // console.log(localGenres)
-    // console.log(Array.from(new Set(myGenres.concat(localGenres))).length != localGenres.length)
-    // if (Array.from(new Set(myGenres.concat(localGenres))).length != localGenres.length){
-
-    // }
     setSelectedGenres(localGenres);
     setGenreMenuOpen(!genreMenuOpen);
   } 
@@ -48,8 +40,8 @@ export default function GenrePopover({
     }}
     > 
       <PopoverTrigger>
-        {/* <Tooltip color="success" closeDelay={500} content="change genres" size = 'lg'> */}
-          <Button isIconOnly className = 'bg-transparent text-white focus:outline-none active:outline-none ' >
+        {/* <Tooltip color="default" closeDelay={0} isDisabled content="change genres" size = 'lg' className='text-black focus:outline-none active:outline-none' placement='right'> */}
+          <Button isIconOnly className = 'bg-transparent text-white'>
               <TbFilter size = {25}/>
           </Button>
         {/* </Tooltip> */}

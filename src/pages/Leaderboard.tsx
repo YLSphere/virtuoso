@@ -79,9 +79,8 @@ function Leaderboard(props: LeaderboardProps) {
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
     return props.users.filter((row: any) => row.max_streak > 0).sort((a:any,b:any)=>{
-      if (a.max_streak-b.max_streak>1) {return -1;}
+      if (a.max_streak-b.max_streak>=1) {return -1;}
       else if (a.max_streak-b.max_streak<1) {return 1;}
       else { return 0;}
     }).slice(start, end);

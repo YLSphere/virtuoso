@@ -3,6 +3,7 @@ import {Button, Autocomplete, AutocompleteItem} from "@nextui-org/react";
 import "../css/Form.css"
 
 import GenrePopover from '../components/GenrePopover';
+import { PiDropSimple } from 'react-icons/pi';
 interface DisplayData {
   artist: string;
   name: string;
@@ -20,15 +21,18 @@ interface FormProps {
   setGenreMenuOpen: any;
   genreMenuOpen: boolean;
   customGame: boolean;
+  gameActive:boolean;
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen, customGame}) => {
-  const [songGuess, setSongGuess] = useState('');
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
- .map(name => {
-   return displayData.find(a => a.wholeName === name)
- })
+const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen, customGame, gameActive}) => {
+const [songGuess, setSongGuess] = useState('');
+const [isInputFocused, setIsInputFocused] = useState(false);
+  
+
+const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
+    .map(name => {
+      return displayData.find(a => a.wholeName === name)
+  })
 
   function detectMob() {
     const toMatch = [
@@ -62,10 +66,10 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
       
       
       <div className = 'flex flex-col justify-center items-center'>
-        <div className = 'flex flex-row items-start justify-center'>
-          <div className = "flex flex-col justify-center ">
+        <div className = 'flex flex-row items-center justify-center'>
+          <div className = "flex flex-col justify-center my-2">
           <Autocomplete
-            defaultItems = {displayData_set}
+            defaultItems = {displayData_set.entries()}
             onInputChange = {handleInputChange}
             onFocus = {() => {setIsInputFocused(!isInputFocused)}}
             onBlur = {() => {setIsInputFocused(!isInputFocused)}}
@@ -104,11 +108,11 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
               },
             }}
           >
-            {(display) => <AutocompleteItem key={display.index}>{display.wholeName}</AutocompleteItem>}
+            {(display) => <AutocompleteItem key={(display[1]!.index).toString()}>{display[1]?.wholeName}</AutocompleteItem>}
           </Autocomplete>
           </div>
           {!customGame && 
-          <div >
+          <div>
             <GenrePopover 
               setSelectedGenres = {setSelectedGenres} 
               myGenres = {myGenres} 
@@ -118,7 +122,7 @@ const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, m
           </div>}
           
         </div>
-        <Button type="submit" className={`submit-button bg-transparent text-[#ccc] text-base ${customGame ? "" : "mr-[40px]"}`}>submit</Button>
+        <Button type="submit" isDisabled = {!gameActive} className={`submit-button bg-transparent text-[#ccc] my-2 text-base ${customGame ? "" : "mr-[40px]"}`}>submit</Button>
       </div>
       
     </form>

@@ -4,6 +4,7 @@ import Streak from '../components/Streak';
 import { useSpotifyToken } from '../components/SpotifyToken';
 import { useNavigate } from 'react-router-dom';
 
+
 import axios from 'axios';
 
 import { FaSpotify } from "react-icons/fa";
@@ -29,6 +30,7 @@ interface NavbarProps {
   setProfileImage:any;
 }
 
+
 function Navbar(props: NavbarProps) {
 
   var sBrowser, sUsrAg = navigator.userAgent;
@@ -48,11 +50,12 @@ function Navbar(props: NavbarProps) {
         return navigator.userAgent.match(toMatchItem);
     });
 }
-
+  
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  const {token} = useSpotifyToken();
+  const { token, setToken } = useSpotifyToken();
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -83,6 +86,8 @@ function Navbar(props: NavbarProps) {
 
   const logout = () => {
     window.localStorage.removeItem("token");
+    setToken('')
+    navigate('/');
   };
   const handleChange = () => {
     props.setCustomGame((prevState:any) => !prevState);
@@ -120,9 +125,17 @@ function Navbar(props: NavbarProps) {
           <li className="">
             <div className="flex flex-row items-center align-center gap-[9px]">
               <span className="toggle-label">{props.customGame ? (
-                <FaSpotify size = {25} style = {{color: "#40b86a"}}/> 
+                <Tooltip content="your songs" placement = 'bottom' color = 'success' closeDelay={0}>
+                  <Button isIconOnly className='bg-transparent'>
+                    <FaSpotify size = {25} style = {{color: "#40b86a"}}/>  
+                  </Button>
+                </Tooltip>
               ) : (
-                <IoMdTrendingUp size = {25} style = {{color: "#d8d649"}}/> 
+                <Tooltip content="popular songs" placement = 'bottom' color = 'warning' closeDelay={0}>
+                  <Button isIconOnly className='bg-transparent'>
+                    <IoMdTrendingUp size = {25} style = {{color: "#f5a524"}}/> 
+                  </Button>
+                </Tooltip>
             )}
               </span>
                 <label className="switch">
@@ -131,10 +144,13 @@ function Navbar(props: NavbarProps) {
                 </label>
             </div>
           </li>
-          <li className="navbar-item" onClick={logout}>
-            <a href="/" className="navbar-link">
-              <MdOutlineLogout size={25}/>
-            </a>
+          
+          <li className="navbar-item">
+            <Tooltip content="logout" placement = 'bottom' color = 'default' closeDelay={0} className='text-black'>
+              <Button isIconOnly className='bg-transparent' onClick={logout}>
+                <MdOutlineLogout size={25} className='text-white'/>
+              </Button>
+            </Tooltip>
           </li>
         </ul>
       </div>
