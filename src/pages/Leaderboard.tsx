@@ -73,7 +73,21 @@ function Leaderboard(props: LeaderboardProps) {
     return props.users.filter((row: any) => row.max_streak > 0).length ? Math.ceil(props.users.filter((row: any) => row.max_streak > 0).length / rowsPerPage) : 0;
   }, [props.users.filter((row: any) => row.max_streak > 0).length, rowsPerPage]);
 
-
+  function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+    
+    return toMatch.some((toMatchItem) => {
+        return navigator.userAgent.match(toMatchItem);
+    });
+}
   // const pages = Math.ceil(props.users.filter((row: any) => row.max_streak > 0).length / rowsPerPage);
 
   const items = useMemo(() => {
@@ -101,13 +115,7 @@ function Leaderboard(props: LeaderboardProps) {
     'custom': 'bg-[#40b86a]'
   }
 
-  
 
-  // const deleteUser = async (spotify_id:string) => {
-  //   const userDoc = doc(db, "leaderboard", spotify_id);
-  //   await deleteDoc(userDoc);
-  //   getUsers();
-  // };
 
   return (
     <div>
@@ -127,7 +135,7 @@ function Leaderboard(props: LeaderboardProps) {
       setProfileImage = {props.setProfileImage}
       />
   
-      <div className = 'flex justify-center items-center h-screen unblur max-w-[70vw]' >
+      <div className={`flex justify-center items-center h-screen unblur ${detectMob() ? "max-w-[35vw]" : "max-w-[70vw]"}`}>
         <div>
           <Table 
             aria-label="leaderboardExample table with client side pagination"

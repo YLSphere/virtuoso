@@ -91,7 +91,6 @@ function Navbar(props: NavbarProps) {
   };
   const handleChange = () => {
     props.setCustomGame((prevState:any) => !prevState);
-    console.log(props.customGame)
   };
 
   return (

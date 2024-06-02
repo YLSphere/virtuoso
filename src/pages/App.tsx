@@ -33,8 +33,11 @@ function App() {
   const [customGame, setCustomGame] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
   const [myGenres, setMyGenres] = useState<string[]>([]);
-  const [topTracks, setTopTracks] = useState<Track[]>([]);
+  
   const [profileImage, setProfileImage] = useState<string>("");
+
+  const [topTracks, setTopTracks] = useState<Track[]>([]);
+  const [myTopTracks, setMyTopTracks] = useState<Track[]>([]);
   
   
 
@@ -82,6 +85,8 @@ function App() {
                     setTopTracks = {setTopTracks}
                     profileImage = {profileImage}
                     setProfileImage = {setProfileImage}
+                    myTopTracks = {myTopTracks}
+                    setMyTopTracks = {setMyTopTracks}
                   />}/>
                 <Route path= '/leaderboard'
                 element={<Leaderboard  

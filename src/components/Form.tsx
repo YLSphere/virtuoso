@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState} from 'react';
 import {Button, Autocomplete, AutocompleteItem} from "@nextui-org/react";
 import "../css/Form.css"
 
@@ -11,6 +11,16 @@ interface DisplayData {
   wholeName: string;
   
 }
+interface Track {
+  id: string;
+  name: string;
+  album: {
+    name: string
+    images: { url: string }[];
+  };
+  artists: { name: string }[];
+  preview_url: string;
+}
 
 
 interface FormProps {
@@ -22,11 +32,13 @@ interface FormProps {
   genreMenuOpen: boolean;
   customGame: boolean;
   gameActive:boolean;
+  randomTrack: Track|null;
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen, customGame, gameActive}) => {
+const Form: React.FC<FormProps> = ({ onSubmit, displayData, setSelectedGenres, myGenres, setGenreMenuOpen, genreMenuOpen, customGame, randomTrack}) => {
 const [songGuess, setSongGuess] = useState('');
 const [isInputFocused, setIsInputFocused] = useState(false);
+const [selectedKey, setSelectedKey] = useState(null);
   
 
 const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
@@ -53,18 +65,20 @@ const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
     event.preventDefault();
     onSubmit(songGuess);
     setSongGuess('');
-    return false;
+    setSelectedKey(null);
+    
   };
 
   const handleInputChange = (value:string) => {
     setSongGuess(value)
   };
+  const handleSelectionChange = (key:any) => {
+    setSelectedKey(key);
+  };
 
   return (
     <form onSubmit={handleSubmit} className='form'>
 
-      
-      
       <div className = 'flex flex-col justify-center items-center'>
         <div className = 'flex flex-row items-center justify-center'>
           <div className = "flex flex-col justify-center my-2">
@@ -73,6 +87,8 @@ const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
             onInputChange = {handleInputChange}
             onFocus = {() => {setIsInputFocused(!isInputFocused)}}
             onBlur = {() => {setIsInputFocused(!isInputFocused)}}
+            selectedKey={selectedKey}
+            onSelectionChange = {handleSelectionChange}
             label="search"
             radius = 'sm'
             classNames={{
@@ -80,7 +96,7 @@ const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
             }}
             popoverProps={{
               classNames: {
-                base: "bg-transparent",
+                base: "bg-transparent flex",
                 content: "p-1 text-black bg-[#cccacaee]",
               },
             }}
@@ -122,7 +138,7 @@ const displayData_set = Array.from(new Set(displayData.map(a => a.wholeName)))
           </div>}
           
         </div>
-        <Button type="submit" isDisabled = {!gameActive} className={`submit-button bg-transparent text-[#ccc] my-2 text-base ${customGame ? "" : "mr-[40px]"}`}>submit</Button>
+        <Button type="submit" isDisabled = {randomTrack == null} className={`submit-button bg-transparent text-[#ccc] my-2 text-base ${customGame ? "" : "mr-[40px]"}`}>submit</Button>
       </div>
       
     </form>

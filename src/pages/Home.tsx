@@ -10,6 +10,7 @@ import Form from '../components/Form'
 // import Spinner from '../components/Spinner'
 import Modal from '../components/Modal';
 import Navbar from '../components/Navbar';
+import Patchnotes from '../components/PatchNotes';
 
 import { VscDebugPause } from "react-icons/vsc";
 import { IoPlay } from "react-icons/io5";
@@ -75,6 +76,8 @@ interface HomeProps{
   setTopTracks: any;
   profileImage: any;
   setProfileImage:any;
+  setMyTopTracks:any;
+  myTopTracks:Track[];
 }
 
 const firebaseConfig = {
@@ -90,7 +93,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 
@@ -126,7 +128,7 @@ function Home(props: HomeProps) {
     const [firstPlay, setfirstPlay] = useState<boolean>(false);
     
     const [totalTime, setTotalTime] = useState<number>(0);
-
+    const [customWins, setCustomWins] = useState<number>(0);
     
     const [displayData, setDisplayData] = useState<DisplayData[]>([]);
     
@@ -142,6 +144,10 @@ function Home(props: HomeProps) {
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const [genreMenuOpen, setGenreMenuOpen] = useState<boolean>(false);
+
+    const [lastCustom, setLastCustom] = useState<Track | null>(null);
+    const [lastTrending, setLastTrending] = useState<Track | null>(null);
+
     const [genres, setGenres] = useState<StringDictionary>(
       {
         'modern pop':[
@@ -222,18 +228,28 @@ function Home(props: HomeProps) {
           '5UFZXhJk7w4joCfg6jS0GV' // R&B/Chill
         ],
         'hip hop':[
-          '37i9dQZF1DWTl4y3vgJOXW', // Locked in
+          '37i9dQZF1DWTl4y3vgJOXW', // Locked In
           '37i9dQZF1DX0XUsuxWHRQd', // Rap Caviar
-          '16C7Tj4i9E3hNzhTaOdu3D' // Fire
+          '37i9dQZF1DX1lHW2vbQwNN', // I Love my 2000s Hip Hop *
+          '37i9dQZF1DX58gKmCfKS2T', // Most Streamed Rap Songs on Spotify
+          '37i9dQZF1DX9oh43oAzkyx', // Beast Mode Hip Hop *
+          '37i9dQZF1DWY4xHQp97fN6', // Get Turnt
+          '37i9dQZF1DWVA1Gq4XHa6U', // Gold School
+
         ],
         '80s, 90s':[
           '4A8pN5orMQBh72D19n1xDb', // 80s & 90s hits
           '22a3X6TAY3qEs60PhcdLTn' // My old man playlist
         ],
         'edm':[
-          '37i9dQZF1DX3Kdv0IChEm9', // EDM Hits
-          '37i9dQZF1DZ06evO1RBsv6', // This is Porter Robinson
-          '0kGQnVyzW8LBi7vswuQ18Y'
+          '37i9dQZF1DX4dyzvuaRJ0n', // mint
+          '37i9dQZF1DWYN9NBqvY7Tx', // Ultra Gaming *
+          '37i9dQZF1DX4eRPd9frC1m', // Hype *
+          '2W32HNDe5OgNsPvciLm1Ix', // Best EDM Songs of All Time
+          '37i9dQZF1DX3Kdv0IChEm9', // EDM Hits *
+          '37i9dQZF1DXdKnYm9qqW04', // Dance Hits of 2015
+          '10PXjjuLhwtYRZtJkgixLO' // EDM Classics 2010-2015
+
         ]
       }
     );
@@ -246,10 +262,10 @@ function Home(props: HomeProps) {
 
   // API FETCH TOP TRACKS
     useEffect(() => {
-      // console.log(myGenres)
       const fetchTopTracks = async () => {
         if (token) {
-          setLoading(true);
+
+          
           try {
             let allTracks: Track[] = [];
             let limit = 50;
@@ -257,7 +273,9 @@ function Home(props: HomeProps) {
             let fetchMore = true;
             
             
-            if (props.customGame){
+            
+            if (props.myTopTracks.length === 0){
+              console.log('fetching your top tracks...')
               while (fetchMore) {
                 const { data } = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
                   headers: {
@@ -274,7 +292,11 @@ function Home(props: HomeProps) {
                   fetchMore = false;
                 }
               }
-            } else {
+              props.setMyTopTracks(allTracks.slice(0, TRACK_LENGTH))
+            }
+            if (!props.customGame && currentGenres !== props.myGenres){
+              console.log('fetching trending tracks...')
+              setLoading(true);
               let maxSongsPerGenre = Math.floor(TRACK_LENGTH/props.myGenres.length)
 
 
@@ -314,12 +336,11 @@ function Home(props: HomeProps) {
                         fetchMore = false; // Stop fetching if an error occurs
                     }
                   }
-                  // console.log(allTracks.length)
+                  props.setTopTracks(allTracks.slice(0, TRACK_LENGTH));
                 }
               }
             }
-            
-            props.setTopTracks(allTracks.slice(0, TRACK_LENGTH)); // Ensure we only have up to 500 tracks
+             // Ensure we only have up to 500 tracks
           } catch (error) {
             console.error('Error fetching top tracks:', error);
           } finally {
@@ -332,13 +353,36 @@ function Home(props: HomeProps) {
           setCurrentGenress(props.myGenres)
           fetchTopTracks();
         }
+        if (props.customGame && props.myTopTracks.length === 0){
+          setLoading(true);
+          fetchTopTracks();
+        } else if (!props.customGame && props.myTopTracks.length === 0){
+          setLoading(false);
+          fetchTopTracks();
+        }
+
+        
         
       }, [props.customGame, genreMenuOpen]);
 
     // CREATE WHOLENAME FOR DISPLAY
     useEffect(() => {
+      if (!props.customGame){
+        if (currentGenres.length == 0){
+          setDisplayData([])
+        }
         if (props.topTracks.length > 0) {
           const list = props.topTracks.map((track, index) => ({
+            artist: track.artists.map(artist => artist.name).join(', '),
+            name: track.name,
+            index: index + 1,
+            wholeName: track.name + ' - ' + track.artists.map(artist => artist.name).join(', ')
+          })); 
+          setDisplayData(list);
+        }
+      } else {
+        if (props.myTopTracks.length > 0) {
+          const list = props.myTopTracks.map((track, index) => ({
             artist: track.artists.map(artist => artist.name).join(', '),
             name: track.name,
             index: index + 1,
@@ -346,7 +390,8 @@ function Home(props: HomeProps) {
           }));
           setDisplayData(list);
         }
-      }, [props.topTracks]);
+      }
+    }, [props.topTracks, props.myTopTracks, props.customGame]);
     
 
     //    ENDING GAME
@@ -358,58 +403,61 @@ function Home(props: HomeProps) {
                 audioRef.current.currentTime = 0;
                 audioRef.current.play();
                 props.setAvgTime(props.avgTime + totalTime)
-                
             }
+            if (props.customGame){
+              setCustomWins(customWins + 1)
+            }
+
+            // CLEAR LAST GAME FOR MODE SWITCH CONTINUITY
+            setLastCustom(null);
+            setLastTrending(null);
         }
       }, [tries]);
 
       useEffect(() => {
         if (tries >= (MAX_TRIES + 1) && !correct){
 
-            if (audioRef.current){
-                setIsModalVisible(true);
-                audioRef.current.currentTime = 0;
-                audioRef.current.play();
-            console.log(props.maxStreak)
-            if (props.streak > props.maxStreak && props.streak > 0){
-              
-              console.log('should update')
-              props.setMaxStreak(props.streak)
-              props.setAvgTime(Math.round(props.avgTime/props.streak))
-              if (props.customGame){
-                updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'], props.profileImage)
-              } else {
-                updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres, props.profileImage)
-              }
-              
-            }
-            }
+          if (audioRef.current){
+              setIsModalVisible(true);
+              audioRef.current.currentTime = 0;
+              audioRef.current.play();
+          }
+          // CLEAR LAST GAME FOR MODE SWITCH CONTINUITY
+          setLastCustom(null);
+          setLastTrending(null);
         }
       }, [tries]);
 
     // STARTING NEW GAME
     const selectRandomTrack = () => {
-      
+
         setTries(0)
         setTotalTime(0)
         setSongGuesses([])
-        if (props.topTracks.length > 0) {
+        setCorrect(false);
+        setfirstPlay(false);
+        setGameActive(true)
+        setCurrentTime(0);
+        if (!props.customGame) {
+          if (props.topTracks.length > 0) {
             const randomIndex = Math.floor(Math.random() * props.topTracks.length);
             const selectedTrack = props.topTracks[randomIndex];
-            console.log(selectedTrack.name);
+            // console.log(selectedTrack.name);
             setRandomTrack(selectedTrack);
+            setLastTrending(selectedTrack)
             setAnswerIndex(randomIndex);
-            setCorrect(false);
-            setfirstPlay(false);
-            setGameActive(true)
-            setCurrentTime(0); // Reset current time when selecting a new track
-            if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0; // Reset the audio to the start
-            audioRef.current.load(); // Load the new track
           }
-          
+        } else {
+          if (props.myTopTracks.length > 0) {
+            const randomIndex = Math.floor(Math.random() * props.myTopTracks.length);
+            const selectedTrack = props.myTopTracks[randomIndex];
+            // console.log(selectedTrack.name);
+            setRandomTrack(selectedTrack);
+            setLastCustom(selectedTrack)
+            setAnswerIndex(randomIndex);
+          }
         }
+        
       };
       useEffect(() => {
         if (audioRef.current) {
@@ -418,7 +466,7 @@ function Home(props: HomeProps) {
             setIsPlaying(false);
           }
         }
-      }, [audioRef.current]);
+      }, [audioRef.current, gameActive, props.customGame, randomTrack]);
       
     // AUDIO TIME UPDATES
     const handleTimeUpdate = () => {
@@ -539,8 +587,28 @@ function Home(props: HomeProps) {
         setGameActive(false)
         setIsModalVisible(false);
         setSongGuesses([]);
+        
         if (!correct){
+          if (props.streak > props.maxStreak && props.streak > 0){
+            
+            console.log('should update')
+            props.setMaxStreak(props.streak)
+            props.setAvgTime(Math.round(props.avgTime/props.streak));
+            if (props.streak != customWins && customWins > 0){
+              updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'].concat(props.myGenres), props.profileImage);
+              getMe(props.users);
+            } else if (props.streak == customWins){
+              updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, ['custom'], props.profileImage);
+              getMe(props.users);
+            } else {
+              updateUser(props.spotifyId, props.spotifyId, props.streak, props.avgTime, props.userName, props.myGenres, props.profileImage);
+              getMe(props.users);
+            }
+          }
+          
+          props.setAvgTime(0)
           props.setStreak(0);
+          setCustomWins(0);
         }
     };
 
@@ -565,7 +633,6 @@ function Home(props: HomeProps) {
       for (let n of users){
         if (n.spotify_id === props.spotifyId){
           props.setMaxStreak(n.max_streak)
-          props.setAvgTime(n.avg_time)
           props.setUserName(n.name)
           props.setSpotifyId(n.spotify_id)
           props.setProfileImage(n.profile_image)
@@ -578,8 +645,6 @@ function Home(props: HomeProps) {
       let users = data.docs.map((doc:any) => ({ ...doc.data()}))
       props.setUsers(users);
       setUserImages(data.docs.map((doc:any) => ({ ...doc.data()}.spotify_id)));
-      getMe(users);
-
     };
 
     const updateUser = async (id: string, spotify_id:string, max_streak:number, avg_time:number, name: string, genres: string[], profile_image:string) => {
@@ -591,11 +656,42 @@ function Home(props: HomeProps) {
 
     
 
+    // HANDLE MODE SWITCH
+    useEffect(() =>{
+      if (props.customGame && lastCustom != null) {
+        setRandomTrack(lastCustom)
+        setCurrentTime(0)
+      } else if (!props.customGame && lastTrending != null) {
+        setRandomTrack(lastTrending)
+      } else {
+        setRandomTrack(null)
+        setCurrentTime(0)
+      }
+      
+      if (lastCustom == null && lastTrending == null){
+        setGameActive(false);
+        setTries(0)
+        setTotalTime(0)
+        setSongGuesses([])
+        setCorrect(false);
+        setfirstPlay(false);
+        setIsPlaying(false);
+      }
+      
 
+    },[props.customGame, currentGenres]);
     
     useEffect(() =>{
-      getUsers(true);
+      if (props.users.length === 0){
+        getUsers(true);
+      }
     },[]);
+    
+    useEffect(() =>{
+      if (props.users.length != 0){
+        getMe(props.users);
+      }
+    },[props.users.length]);
 
     useEffect(() => {
     if (userImages.length !== 0 && !userImages.includes(props.spotifyId)) {
@@ -608,7 +704,6 @@ function Home(props: HomeProps) {
       <div className="h-screen w-screen flex flex-col">
           {loading ? (
               <div className='spinner'>
-                  {/* <Spinner /> */}
                   <Spinner color="success" size = "lg" classNames={{
                     base: 'spinner-size',
                   }}/>
@@ -643,8 +738,9 @@ function Home(props: HomeProps) {
                                 genreMenuOpen = {genreMenuOpen}
                                 customGame = {props.customGame}
                                 gameActive = {gameActive}
+                                randomTrack = {randomTrack}
                                 />
-                              {!gameActive && (
+                              {(!gameActive && displayData.length > 0) && (
                                 <Tooltip color="success" placement='bottom' closeDelay={0} content="new song" size = 'lg'>
                                   <Button isIconOnly className={`bg-transparent text-[#1DB954] hover:text-[#158b3f] p-0 ${props.customGame ? "" : "mr-[36px]"}`}
                                   onClick={selectRandomTrack}>
@@ -712,6 +808,7 @@ function Home(props: HomeProps) {
                           </div>
                       </div>
                   </div>
+                  <Patchnotes />
               </div>
           )}
           
@@ -721,6 +818,7 @@ function Home(props: HomeProps) {
               track={randomTrack}
               isCorrect={correct}
           />
+          
           <div id="particles-js" className="particles-container" />
       </div>
   );
